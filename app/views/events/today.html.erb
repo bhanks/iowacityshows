@@ -26,7 +26,7 @@ td.description
 		<% @events.each do |event| %>
 		<tr>
 			<td><%= event.name%></td>
-			<td><%= link_to(event.venue.name, today_venue_events_path(event.venue.id)) %></td>
+			<td><%= link_to(event.venue.name, venue_events_path(event.venue.id)) %></td>
 			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
 			<td class="description"><%= event.description.slice(0,255) %> <%= link_to("...Read More", event_path(event.id))%> </td>
 			<td><%= event.price %></td>
