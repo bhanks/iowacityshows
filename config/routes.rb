@@ -1,7 +1,7 @@
 Onesheet::Application.routes.draw do
 
-
-
+  
+  root :to => "events#today"
   
   resources :venues do
     #collection actions should be applied to all records
@@ -29,6 +29,8 @@ Onesheet::Application.routes.draw do
       get :scrape
     end
   end
+  
+  
   
   # The priority is based upon order of creation:
   # first created -> highest priority.

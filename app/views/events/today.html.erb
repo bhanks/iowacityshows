@@ -19,7 +19,7 @@ th, td
 		<tr>
 			<td><%= event.name%></td>
 			<td><%= event.venue.name %></td>
-			<td><%= event.begins_at.utc.hour % 12 %></td>
+			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
 			<td><%= event.description %></td>
 			<td><%= event.price %></td>
 			<td><%= event.age_restriction %></td>
