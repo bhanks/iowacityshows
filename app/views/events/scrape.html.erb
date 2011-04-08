@@ -11,9 +11,7 @@ th, td
 </style>
 <div class="event list">
 	<h2>Events<%= @venue? " at #{@venue.name}" : ''%></h2>
-	<%= link_to("Happening Today", params[:venue_id]? today_venue_events_path(params[:venue_id]) : today_events_path())%>
-	<br/>
-	<%= link_to("Add New event",{:action => 'new' })%>
+	<p>Number of events scraped: <%= @events.length %>
 	<table class="listing" summary="event list">
 		<tr class="header">
 			<th>Name</th>

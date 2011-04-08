@@ -56,7 +56,7 @@ class Event < ActiveRecord::Base
     @events = []
     Nokogiri::HTML(open('http://bluemooseic.com/events/')).css("tbody.vevent").map do |vevent|
       event = self.new
-      event.begins_at = Time.parse(vevent.css(".dtstart").at("./@title").to_s)
+      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
       event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
       event.description = vevent.css(".gigpress-info-notes").inner_html
       event.price = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
@@ -74,7 +74,7 @@ class Event < ActiveRecord::Base
     @events = []
     Nokogiri::HTML(open('http://www.iowacityyachtclub.org/calendar.html')).css(".entry").map do |vevent|
       event = self.new
-      event.begins_at = Time.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
+      event.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
       event.name = vevent.css("a").inner_html
       event.description = vevent.css("p").inner_html
       event.price = vevent.css(".price").inner_html # .match(/$(\d+)/)[1]
