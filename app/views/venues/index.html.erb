@@ -1,0 +1,38 @@
+<% if !flash[:notice].blank? %>
+	<div class="notice">
+		<%= flash[:notice]%>
+	</div>
+<% end %>
+<style type='text/css'>
+th, td
+{
+	padding-right: 40px;
+}
+</style>
+<div class="venue list">
+	<h2>Venues</h2>
+	<%= link_to("Add New Venue",{:action => 'new' })%>
+	<table class="listing" summary="venue list">
+		<tr class="header">
+			<th>Name</th>
+			<th>Address</th>
+			<th>Site</th>
+			<th>Event Listing</th>
+			<th>Actions</th>
+		</tr>
+		<% @venues.each do |venue| %>
+		<tr>
+			<td><%= venue.name%></td>
+			<td><%= venue.address %></td>
+			<td><%= link_to venue.site_url, venue.site_url, {:target => '_blank'} %></td>
+			<td><%= link_to venue.event_list_url, venue.event_list_url, {:target => '_blank'} %></td>
+			<td class="actions">
+					<%= link_to("Show",{:action => 'show', :id => venue.id},:class => 'action show') %>
+					<%= link_to("Edit", {:action => 'edit', :id => venue.id}, :class => 'action edit') %>
+					<%= link_to("Delete", {:action => 'delete', :id => venue.id}, :class => 'action delete') %>
+					<%= link_to("Events", venue_events_path(venue))%>
+			</td>
+		</tr>
+		<% end %>
+	</table>
+</div>

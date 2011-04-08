@@ -1,0 +1,45 @@
+<% if !flash[:notice].blank? %>
+	<div class="notice">
+		<%= flash[:notice]%>
+	</div>
+<% end %>
+<style type='text/css'>
+th, td
+{
+	padding-right: 40px;
+}
+</style>
+<div class="event list">
+	<h2>Events<%= @venue? " at #{@venue.name}" : ''%></h2>
+	<%= link_to("Happening Today", params[:venue_id]? today_venue_events_path(params[:venue_id]) : today_events_path())%>
+	<br/>
+	<%= link_to("Add New event",{:action => 'new' })%>
+	<table class="listing" summary="event list">
+		<tr class="header">
+			<th>Name</th>
+
+			<th>Venue</th>
+			<th>Date</th>
+			<th>Description</th>
+			<th>Price</th>
+			<th>Age Restriction</th>
+			<th>Actions</th>
+		</tr>
+		<% @events.each do |event| %>
+		<tr>
+			<td><%= event.name%></td>
+			<td><%= event.venue.name%></td>
+
+			<td><%= event.begins_at %></td>
+			<td><%= event.description %></td>
+			<td><%= event.price %></td>
+			<td><%= event.age_restriction %></td>
+			<td class="actions">
+					<%= link_to("Show",{:action => 'show', :id => event.id},:class => 'action show') %>
+					<%= link_to("Edit", {:action => 'edit', :id => event.id}, :class => 'action edit') %>
+					<%= link_to("Delete", {:action => 'delete', :id => event.id}, :class => 'action delete') %>
+			</td>
+		</tr>
+		<% end %>
+	</table>
+</div>

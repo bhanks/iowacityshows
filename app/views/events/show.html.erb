@@ -1,0 +1,42 @@
+<%= link_to("<< Back to List", {:action  => 'index'}, :class  => 'back-link')%>
+
+<div class="event show">
+	<h2>Show Event</h2>
+	<table summary="event detail view">
+		<tr>
+			<th>Name</th>
+			<td><%= @event.name%></td>
+		</tr>
+		<tr>
+			<th>Venue</th>
+			<td><%= @event.venue.name%></td>
+		</tr>
+		<tr>
+			<th>Begins at</th>
+			<td><%= @event.begins_at %></td>
+		</tr>
+		<tr>
+			<th>Description</th>
+			<td><%= @event.description %></td>
+		</tr>
+		<tr>
+			<th>Price</th>
+			<td><%= @event.price %></td>
+		</tr>
+		<tr>
+			<th>Age Restriction</th>
+			<td><%= @event.age_restriction %></td>
+		</tr>
+		<tr>
+			<th>Created</th>
+			<td><%= @event.created_at %></td>
+		</tr>
+		<tr>
+			<th>Updated</th>
+			<td><%= @event.updated_at %></td>
+		</tr>
+	</table>
+	
+	<%= link_to("Edit this event", {:action => 'edit'}) %>
+	
+</div>

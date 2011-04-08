@@ -1,0 +1,34 @@
+<%= link_to("<< Back to List", {:action  => 'index'}, :class  => 'back-link')%>
+
+<div class="venue show">
+	<h2>Show venue</h2>
+	<table summary="venue detail view">
+		<tr>
+			<th>Name</th>
+			<td><%= @venue.name%></td>
+		</tr>
+		<tr>
+			<th>Address</th>
+			<td><%= @venue.address%></td>
+		</tr>
+		<tr>
+			<th>Site</th>
+			<td><%= @venue.site_url %></td>
+		</tr>
+		<tr>
+			<th>Event List</th>
+			<td><%= @venue.event_list_url %></td>
+		</tr>
+		<tr>
+			<th>Created</th>
+			<td><%= @venue.created_at %></td>
+		</tr>
+		<tr>
+			<th>Updated</th>
+			<td><%= @venue.updated_at %></td>
+		</tr>
+	</table>
+	
+	<%= link_to("Edit this Venue", {:action => 'edit'}) %>
+	
+</div>
