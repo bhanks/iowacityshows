@@ -3,9 +3,17 @@ th, td
 {
 	padding-right: 40px;
 }
+td.description
+{
+	max-width: 500px;
+}
 </style>
 <div class="event list">
 	<h2>Events<%= @venue? " at #{@venue.name}" : ''%> Today</h2>
+	<% if(params[:venue_id].nil? == false)%>
+	<%= link_to("All events happening today", today_events_path())%>
+	<% end%>
+	
 	<table class="listing" summary="event list">
 		<tr class="header">
 			<th>Name</th>
@@ -18,9 +26,9 @@ th, td
 		<% @events.each do |event| %>
 		<tr>
 			<td><%= event.name%></td>
-			<td><%= event.venue.name %></td>
+			<td><%= link_to(event.venue.name, today_venue_events_path(event.venue.id)) %></td>
 			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
-			<td><%= event.description %></td>
+			<td class="description"><%= event.description.slice(0,255) %> <%= link_to("...Read More", event_path(event.id))%> </td>
 			<td><%= event.price %></td>
 			<td><%= event.age_restriction %></td>
 		</tr>
