@@ -18,7 +18,14 @@ class EventsController < ApplicationController
       @events = Event.today
     end
   end
-  
+
+  def week
+    if(params[:venue_id])
+      @events = Event.by_venue(params[:venue_id]).week.order("events.begins_at ASC")
+    else
+      @events = Event.week.order("events.begins_at ASC")
+    end
+  end
   
   def new
     @event = Event.new

@@ -1,0 +1,25 @@
+<div data-role="page">
+
+    <div data-role="header" data-theme="d">
+        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today</h1>
+    </div>
+
+    <div data-role="content" data-theme="d">
+        <ul data-role="listview" >
+				<li data-role="list-divider"><%= @events.first.venue.name%></li>
+				<% cur_venue = @events.first.venue.name%>
+				<% @events.each do |event| %>
+					<% if event.venue.name != cur_venue%>
+						<li data-role="list-divider"><%= @events.first.venue.name%></li>
+					<% end %>
+					<li>
+						<h1><%= event.name%><h1>
+					</li>
+				<% end %>
+				</ul>
+    </div>
+
+    <div data-role="footer" data-theme="d">
+        <h4></h4>
+    </div>
+</div>

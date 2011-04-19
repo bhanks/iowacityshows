@@ -17,7 +17,7 @@ Onesheet::Application.routes.draw do
     resources :events do
       collection do
         get :today
-        get :scrape
+        get :week
       end
     end
   
@@ -27,6 +27,7 @@ Onesheet::Application.routes.draw do
     collection do
       get :today
       get :scrape
+      get :week
     end
   end
   

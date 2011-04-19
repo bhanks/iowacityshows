@@ -6,11 +6,11 @@ class Event < ActiveRecord::Base
   }
   
   scope :today, lambda{
-    where("events.begins_at >= ? and events.begins_at < ?", Date.today, (Date.today+1))
+    where("events.begins_at >= ? and events.begins_at < ?", Date.today, Date.today+1 )
   }
   
-  scope :through, lambda{ |end_date|
-    where("events.date >= ? and events.date <= ?", Date.today, end_date )
+  scope :week, lambda{
+    where("events.begins_at >= ? and events.begins_at <= ?", Date.today, Event.next_sunday+1 )
   }
   
   
@@ -89,5 +89,16 @@ class Event < ActiveRecord::Base
     events = Event.by_venue(venue_id)
     events.delete_all
   end
+  
+  def self.next_sunday
+    unless(Date.today.cwday == 7)
+      days = (0..6).map{|x| Date.today + x}
+      sunday = days.select{|day| day.cwday == 7}.first
+    else
+      sunday = Date.today
+    end
+    sunday
+  end
+  
   
 end

@@ -7,11 +7,19 @@ td.description
 {
 	max-width: 500px;
 }
+td.day
+{
+	font-weight: bold;
+	text-align:center;
+	font-size:1.5em;
+	padding-top:20px;
+	padding-bottom: 20px;
+}
 </style>
 <div class="event list">
-	<h2>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today</h2>
+	<h2>Events<%= @venue? " at #{@venue.name}" : ''%> This Week</h2>
 	<% if(params[:venue_id].nil? == false)%>
-	<%= link_to("All events happening today", today_events_path())%>
+	<%= link_to("All events happening this week", week_events_path())%>
 	<% end%>
 	
 	<table class="listing" summary="event list">
@@ -23,9 +31,21 @@ td.description
 			<th>Price</th>
 			<th>Age Restriction</th>
 		</tr>
-		<% @events.each do |event| %>
+		<% cur_day = @events.first.begins_at.wday %>
 		<tr>
-			<td><%= event.name%></td>
+			<td colspan='6' class="day"><%= @events.first.begins_at.strftime("%A")%></td>
+		</tr>
+		<% @events.each do |event| %>
+		<% 
+		if (event.begins_at.wday != cur_day)
+			cur_day = event.begins_at.wday
+		%>
+		<tr>
+			<td colspan='6' class="day"><%= event.begins_at.strftime("%A")%></td>
+		</tr>
+		<% end %>
+		<tr>
+			<td><%= raw event.name%></td>
 			<td><%= link_to(event.venue.name, venue_events_path(event.venue.id)) %></td>
 			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
 			<td class="description"><%= raw event.description.slice(0,255) %> <%= link_to("...Read More", event_path(event.id))%> </td>
@@ -39,22 +59,25 @@ td.description
 <div data-role="page">
 
     <div data-role="header" data-theme="d">
-        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today</h1>
+        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> This Week</h1>
     </div>
 
     <div data-role="content" data-theme="d">
         <ul data-role="listview" data-inset="true">
-				<li data-role="list-divider"><%= @events.first.venue.name%></li>
-				<% cur_venue = @events.first.venue.name%>
-				<% @events.each do |event| %>
-					<% if event.venue.name != cur_venue%>
-						<li data-role="list-divider"><%= event.venue.name%></li>
+				<li data-role="list-divider"><%= @events.first.begins_at.strftime("%A")%></li>
+					<% cur_day = @events.first.begins_at.wday %>
+					<% @events.each do |event| %>
+						<%
+						if (event.begins_at.wday != cur_day)
+							cur_day = event.begins_at.wday
+						%>
+						<li data-role="list-divider"><%= event.begins_at.strftime("%A")%></li>
 					<% end %>
 					<li>
-						<h1><%= event.name%></h1>
+						<h1><%= raw event.name%></h1>
 						<p><%= event.price %></p>
 					</li>
-				<% end %>
+					<% end %>
 					<li data-role="list-divider"></li>
 				</ul>
     </div>
