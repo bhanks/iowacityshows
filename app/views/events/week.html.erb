@@ -1,61 +1,3 @@
-<style type='text/css'>
-th, td
-{
-	padding-right: 40px;
-}
-td.description
-{
-	max-width: 500px;
-}
-td.day
-{
-	font-weight: bold;
-	text-align:center;
-	font-size:1.5em;
-	padding-top:20px;
-	padding-bottom: 20px;
-}
-</style>
-<div class="event list">
-	<h2>Events<%= @venue? " at #{@venue.name}" : ''%> This Week</h2>
-	<% if(params[:venue_id].nil? == false)%>
-	<%= link_to("All events happening this week", week_events_path())%>
-	<% end%>
-	
-	<table class="listing" summary="event list">
-		<tr class="header">
-			<th>Name</th>
-			<th>Venue</th>
-			<th>Begins At</th>
-			<th>Description</th>
-			<th>Price</th>
-			<th>Age Restriction</th>
-		</tr>
-		<% cur_day = @events.first.begins_at.wday %>
-		<tr>
-			<td colspan='6' class="day"><%= @events.first.begins_at.strftime("%A")%></td>
-		</tr>
-		<% @events.each do |event| %>
-		<% 
-		if (event.begins_at.wday != cur_day)
-			cur_day = event.begins_at.wday
-		%>
-		<tr>
-			<td colspan='6' class="day"><%= event.begins_at.strftime("%A")%></td>
-		</tr>
-		<% end %>
-		<tr>
-			<td><%= raw event.name%></td>
-			<td><%= link_to(event.venue.name, venue_events_path(event.venue.id)) %></td>
-			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
-			<td class="description"><%= raw event.description.slice(0,255) %> <%= link_to("...Read More", event_path(event.id))%> </td>
-			<td><%= event.price %></td>
-			<td><%= event.age_restriction %></td>
-		</tr>
-		<% end %>
-	</table>
-</div>
-
 <div data-role="page">
 
     <div data-role="header" data-theme="d">
@@ -74,8 +16,10 @@ td.day
 						<li data-role="list-divider"><%= event.begins_at.strftime("%A")%></li>
 					<% end %>
 					<li>
-						<h1><%= raw event.name%></h1>
+						<h1><%= link_to( event.name, event_path(event.id)) %></h1>
+						<p><strong><%= event.venue.name %></strong></p> 
 						<p><%= event.price %></p>
+						<h2 class="ui-li-aside"><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / <%= event.age_restriction %></h2>
 					</li>
 					<% end %>
 					<li data-role="list-divider"></li>

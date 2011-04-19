@@ -29,7 +29,7 @@ th, td
 		</tr>
 		<% @events.each do |event| %>
 		<tr>
-			<td><%= event.name%></td>
+			<td><%= link_to(event.name, event_path(event.id))%></td>
 			<% if params[:venue_id].nil? %>
 			<td><%= link_to event.venue.name, venue_events_path(event.venue_id) %></td>
 			<% end %>

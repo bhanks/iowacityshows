@@ -51,15 +51,22 @@ td.description
 						<li data-role="list-divider"><%= event.venue.name%></li>
 					<% end %>
 					<li>
-						<h1><%= event.name%></h1>
+						<h1><%= link_to( event.name, event_path(event.id)) %></h1>
+						<p><strong><%= event.venue.name %></strong></p> 
 						<p><%= event.price %></p>
+						<h2 class="ui-li-aside"><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / <%= event.age_restriction %></h2>
 					</li>
 				<% end %>
 					<li data-role="list-divider"></li>
 				</ul>
     </div>
 
-    <div data-role="footer" data-theme="d">
-        <h4></h4>
-    </div>
+		<div data-role="footer" data-theme="d">
+			<div data-role="navbar" data-theme="d">
+				<ul>
+					<li><%= link_to("This Week", week_events_path()) %></li>
+					<li><%= link_to("Venue List", venues_path()) %></li>
+				</ul>
+			</div>
+		</div>
 </div>
