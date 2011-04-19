@@ -1,49 +1,39 @@
-<% if !flash[:notice].blank? %>
-	<div class="notice">
-		<%= flash[:notice]%>
-	</div>
-<% end %>
-<style type='text/css'>
-th, td
-{
-	padding-right: 40px;
-}
-</style>
-<div class="event list">
-	<h2>Events<%= @venue? " at #{@venue.name}" : ''%></h2>
-	<%= link_to("Happening Today", params[:venue_id]? today_venue_events_path(params[:venue_id]) : today_events_path())%>
-	<br/>
-	<%= link_to("Add New event",{:action => 'new' })%>
-	<table class="listing" summary="event list">
-		<tr class="header">
-			<th>Name</th>
-			<% if params[:venue_id].nil? %>
-			<th>Venue</th>
-			<% end %>
-			<th>Begins At</th>
-			<th>Date</th>
-			<th>Description</th>
-			<th>Price</th>
-			<th>Age Restriction</th>
-			<th>Actions</th>
-		</tr>
-		<% @events.each do |event| %>
-		<tr>
-			<td><%= link_to(event.name, event_path(event.id))%></td>
-			<% if params[:venue_id].nil? %>
-			<td><%= link_to event.venue.name, venue_events_path(event.venue_id) %></td>
-			<% end %>
-			<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM"  %></td>
-			<td><%= event.begins_at %>
-			<td><%= raw event.description %></td>
-			<td><%= event.price %></td>
-			<td><%= event.age_restriction %></td>
-			<td class="actions">
-					<%= link_to("Show",{:action => 'show', :id => event.id},:class => 'action show') %>
-					<%= link_to("Edit", {:action => 'edit', :id => event.id}, :class => 'action edit') %>
-					<%= link_to("Delete", {:action => 'delete', :id => event.id}, :class => 'action delete') %>
-			</td>
-		</tr>
-		<% end %>
-	</table>
+
+<div data-role="page">
+
+    <div data-role="header" data-theme="d">
+        <h1>All Events<%= @venue? " at #{@venue.name}" : ''%></h1>
+    </div>
+
+    <div data-role="content" data-theme="d">
+        <ul data-role="listview" data-inset="true">
+				<li data-role="list-divider"><%= @events.first.venue.name%></li>
+				<% cur_venue = @events.first.venue.name%>
+				<% @events.each do |event| %>
+					<% if event.venue.name != cur_venue
+							cur_venue = event.venue.name
+						%>
+					
+						<li data-role="list-divider"><%= event.venue.name%></li>
+					<% end %>
+					<li>
+						<% event_name = raw event.name%>
+						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
+						<p><strong><%= event.venue.name %></strong></p> 
+						<p><%= event.price %></p>
+						<h2 class="ui-li-aside"><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / <%= event.age_restriction %></h2>
+					</li>
+				<% end %>
+					<li data-role="list-divider"></li>
+				</ul>
+    </div>
+
+		<div data-role="footer" data-theme="d">
+			<div data-role="navbar" data-theme="d">
+				<ul>
+					<li><%= link_to("This Week", week_events_path()) %></li>
+					<li><%= link_to("Venue List", venues_path()) %></li>
+				</ul>
+			</div>
+		</div>
 </div>

@@ -16,7 +16,8 @@
 						<li data-role="list-divider"><%= event.begins_at.strftime("%A")%></li>
 					<% end %>
 					<li>
-						<h1><%= link_to( event.name, event_path(event.id)) %></h1>
+						<% event_name = raw event.name%>
+						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
 						<p><strong><%= event.venue.name %></strong></p> 
 						<p><%= event.price %></p>
 						<h2 class="ui-li-aside"><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / <%= event.age_restriction %></h2>
