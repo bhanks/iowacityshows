@@ -1,7 +1,8 @@
 <div data-role="page">
 
     <div data-role="header" data-theme="d">
-        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today</h1>
+        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today, <%= Date.today.strftime("%a %m/%d")%></h1>
+				
     </div>
 
     <div data-role="content" data-theme="d">
@@ -15,9 +16,13 @@
 					<li>
 						<% event_name = raw event.name%>
 						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
-						<p><strong><%= event.venue.name %></strong></p> 
 						<p><%= event.price %></p>
-						<h2 class="ui-li-aside"><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / <%= event.age_restriction %></h2>
+						<h2 class="ui-li-aside">
+							<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %>
+							<% if (event.age_restriction != "")%>
+							 <%= " / " + event.age_restriction %>	
+							<% end %>
+						</h2>
 					</li>
 				<% end %>
 					<li data-role="list-divider"></li>

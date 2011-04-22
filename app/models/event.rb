@@ -75,9 +75,17 @@ class Event < ActiveRecord::Base
     Nokogiri::HTML(open('http://www.iowacityyachtclub.org/calendar.html')).css(".entry").map do |vevent|
       event = self.new
       event.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
+      if event.begins_at.hour < 22
+        event.age_restriction = "19+"
+      elsif event.begins_at.hour >= 22
+        event.age_restriction = "21+"
+      end
       event.name = vevent.css("a").inner_html
       event.description = vevent.css("p").inner_html
-      event.price = vevent.css(".price").inner_html # .match(/$(\d+)/)[1]
+      price = vevent.css(".price").inner_html
+      unless price == ""
+        event.price = price.match(/Price: (\S+)/)[1]
+      end
       event.venue_id = venue_id
       event.save
       @events << event
