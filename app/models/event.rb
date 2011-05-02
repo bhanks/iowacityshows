@@ -102,19 +102,28 @@ class Event < ActiveRecord::Base
     #base = "http://www.englert.org/"
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
       loc = node.attributes["href"].value
-      event = self.new
-      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-      event.name = vevent.css("h1").inner_html
-      event.begins_at = DateTime.parse(vevent.css(".event_name").text)
-      event.price = vevent.css("font")[0].inner_html
-      event.description = vevent.css("font")[1].text
-      event.age_restriction = "All Ages"
-      event.venue_id = venue_id
-      event.save
-      @events << event
+      @events << Event.englert_event_parser(loc, venue_id)
+    end
+    Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
+      loc = node.attributes["href"].value
+      @events << Event.englert_event_parser(loc, venue_id)
     end
     @events
   end
+  
+  def self.englert_event_parser(location, venue_id)
+    event = self.new
+    vevent = Nokogiri::HTML(open('http://www.englert.org/'+location)).css("#content_interior")
+    event.name = vevent.css("h1").inner_html
+    event.begins_at = DateTime.parse(vevent.css(".event_name").text)
+    event.price = vevent.css("font")[0].inner_html
+    event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text
+    event.age_restriction = "All Ages"
+    event.venue_id = venue_id
+    event.save
+    event
+  end
+    
   
   def self.flush_events(venue_id)
     events = Event.by_venue(venue_id)
