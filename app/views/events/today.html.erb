@@ -16,7 +16,7 @@
 					<li>
 						<% event_name = raw event.name%>
 						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
-						<p><%= event.price %></p>
+						<p><%= raw event.price %></p>
 						<h2 class="ui-li-aside">
 							<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %>
 							<% if (event.age_restriction != "")%>

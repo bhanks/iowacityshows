@@ -93,6 +93,29 @@ class Event < ActiveRecord::Base
     @events
   end
   
+  def self.englert_events
+    venue_id = Venue.find_by_name("The Englert").id
+    Event.flush_events(venue_id)
+    @events = []
+    #event_anchors = Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map{|node| node.attributes["href"].value}
+    #event_anchors += Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map{|node| node.attributes["href"].value}
+    #base = "http://www.englert.org/"
+    Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
+      loc = node.attributes["href"].value
+      event = self.new
+      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+      event.name = vevent.css("h1").inner_html
+      event.begins_at = DateTime.parse(vevent.css(".event_name").text)
+      event.price = vevent.css("font")[0].inner_html
+      event.description = vevent.css("font")[1].text
+      event.age_restriction = "All Ages"
+      event.venue_id = venue_id
+      event.save
+      @events << event
+    end
+    @events
+  end
+  
   def self.flush_events(venue_id)
     events = Event.by_venue(venue_id)
     events.delete_all

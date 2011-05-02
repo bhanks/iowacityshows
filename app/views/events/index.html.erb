@@ -21,7 +21,7 @@
 						<% event_name = raw event.name%>
 						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
 						<p><strong><%= event.begins_at.strftime("%m/%d/%Y") %> </strong></p>
-						<p><%= event.price %></p>
+						<p><%= raw event.price %></p>
 						<h2 class="ui-li-aside">
 							<% unless event.begins_at.nil? %>
 								<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / 

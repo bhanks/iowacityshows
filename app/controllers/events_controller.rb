@@ -78,6 +78,7 @@ class EventsController < ApplicationController
     @events += Event.gabes_events
     @events += Event.blue_moose_events
     @events += Event.yacht_club_events
+    @events += Event.englert_events
   end
   
   
