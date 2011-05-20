@@ -7,28 +7,30 @@
     <div data-role="content" data-theme="b">
         <ul data-role="listview" data-inset="false">
 
-				<li data-role="list-divider"><%= @events.first.venue.name%></li>
-
-				<% cur_venue = @events.first.venue.name%>
-				<% @events.each do |event| %>
-					<% if (event.venue.name != cur_venue )
-							cur_venue = event.venue.name
-					%>
+				<li data-role="list-divider"><%= (@events.empty? == false)? @events.first.venue.name : ""%></li>
+				<% unless @events.empty?%>
+					<% cur_venue = @events.first.venue.name%>
+				
+					<% @events.each do |event| %>
+						<% if (event.venue.name != cur_venue )
+								cur_venue = event.venue.name
+						%>
 						
-						<li data-role="list-divider"><%= event.venue.name%></li>
+							<li data-role="list-divider"><%= event.venue.name%></li>
+						<% end %>
+						<li>
+							<% event_name = raw event.name%>
+							<h1><%= link_to( event_name, event_path(event.id)) %></h1>
+							<p><strong><%= event.begins_at.strftime("%m/%d/%Y") %> </strong></p>
+							<p><%= raw event.price %></p>
+							<h2 class="ui-li-aside">
+								<% unless event.begins_at.nil? %>
+									<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / 
+								<% end %>
+									<%= event.age_restriction %>
+							</h2>
+						</li>
 					<% end %>
-					<li>
-						<% event_name = raw event.name%>
-						<h1><%= link_to( event_name, event_path(event.id)) %></h1>
-						<p><strong><%= event.begins_at.strftime("%m/%d/%Y") %> </strong></p>
-						<p><%= raw event.price %></p>
-						<h2 class="ui-li-aside">
-							<% unless event.begins_at.nil? %>
-								<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / 
-							<% end %>
-								<%= event.age_restriction %>
-						</h2>
-					</li>
 				<% end %>
 
 					<li data-role="list-divider"></li>

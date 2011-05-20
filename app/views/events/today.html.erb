@@ -1,12 +1,13 @@
 <div data-role="page">
 
-    <div data-role="header" data-theme="d">
+    <div data-role="header" data-theme="b">
         <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> Today, <%= Date.today.strftime("%a %m/%d")%></h1>
 				
     </div>
 
-    <div data-role="content" data-theme="d">
-        <ul data-role="listview" data-inset="true">
+    <div data-role="content" data-theme="b">
+				<p></p>
+        <ul data-role="listview" data-inset="false">
 				<li data-role="list-divider"><%= @events.first.venue.name%></li>
 				<% cur_venue = @events.first.venue.name%>
 				<% @events.each do |event| %>
@@ -27,10 +28,11 @@
 				<% end %>
 					<li data-role="list-divider"></li>
 				</ul>
+				<p></p>
     </div>
 
-		<div data-role="footer" data-theme="d">
-			<div data-role="navbar" data-theme="d">
+		<div data-role="footer" data-theme="b">
+			<div data-role="navbar" data-theme="b">
 				<ul>
 					<li><%= link_to("This Week", week_events_path()) %></li>
 					<li><%= link_to("Venue List", venues_path()) %></li>

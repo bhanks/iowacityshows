@@ -63,6 +63,7 @@ class Event < ActiveRecord::Base
       event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
       event.venue_id = venue_id
       event.save
+      #comment
       @events << event
     end
     @events
@@ -98,15 +99,18 @@ class Event < ActiveRecord::Base
     Event.flush_events(venue_id)
     @events = []
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
-      loc = node.attributes["href"].value
-      @events << Event.englert_event_parser(loc, venue_id)
+        loc = node.attributes["href"].value
+        @events << Event.englert_event_parser(loc, venue_id)
     end
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
       loc = node.attributes["href"].value
       @events << Event.englert_event_parser(loc, venue_id)
     end
+
+    @events.each{|event| event.save}
     @events
   end
+  
   
   def self.englert_event_parser(location, venue_id)
     event = self.new
@@ -117,7 +121,6 @@ class Event < ActiveRecord::Base
     event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text
     event.age_restriction = "All Ages"
     event.venue_id = venue_id
-    event.save
     event
   end
     
