@@ -17,7 +17,7 @@ end
 gem 'nokogiri'
 gem 'mechanize'
 #gem 'open-uri'
-
+gem "delayed_job",  :git => 'git://github.com/collectiveidea/delayed_job.git'
 
 # Use unicorn as the web server
 # gem 'unicorn'

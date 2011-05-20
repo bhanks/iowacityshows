@@ -1,3 +1,4 @@
+
 class EventsController < ApplicationController
   def index
     if(params[:venue_id])
@@ -74,11 +75,12 @@ class EventsController < ApplicationController
   end
   
   def scrape
-    @events = Event.mill_events
-    @events += Event.gabes_events
-    @events += Event.blue_moose_events
-    @events += Event.yacht_club_events
-    @events += Event.englert_events
+    #@events = Event.mill_events
+    #@events += Event.gabes_events
+    #@events += Event.blue_moose_events
+    #@events += Event.yacht_club_events
+    Delayed::Job.enqueue(ScrapingJob.new())
+    flash[:notice] = "Scrape initiated."
   end
   
   
