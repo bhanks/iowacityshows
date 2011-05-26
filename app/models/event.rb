@@ -102,11 +102,12 @@ class Event < ActiveRecord::Base
         loc = node.attributes["href"].value
         @events << Event.englert_event_parser(loc, venue_id)
     end
+=begin
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
       loc = node.attributes["href"].value
       @events << Event.englert_event_parser(loc, venue_id)
     end
-
+=end
     @events.each{|event| event.save}
     @events
   end
