@@ -63,7 +63,7 @@ class Event < ActiveRecord::Base
       event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
       event.venue_id = venue_id
       event.save
-      #comment
+
       @events << event
     end
     @events

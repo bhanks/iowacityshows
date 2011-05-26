@@ -80,6 +80,7 @@ class EventsController < ApplicationController
     #@events += Event.blue_moose_events
     #@events += Event.yacht_club_events
     Delayed::Job.enqueue(ScrapingJob.new())
+    Delayed::Job.enqueue(ScrapingJob.new("The Englert"))
     flash[:notice] = "Scrape initiated."
   end
   
