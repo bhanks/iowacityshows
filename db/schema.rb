@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110520193126) do
+ActiveRecord::Schema.define(:version => 20110526190013) do
 
   create_table "admins", :force => true do |t|
     t.string "username"
@@ -38,9 +38,9 @@ ActiveRecord::Schema.define(:version => 20110520193126) do
     t.string   "age_restriction"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "price"
     t.datetime "begins_at"
     t.text     "description"
+    t.text     "price"
   end
 
   create_table "venues", :force => true do |t|
