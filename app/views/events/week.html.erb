@@ -1,11 +1,11 @@
 <div data-role="page">
 
     <div data-role="header" data-theme="b" data-position="fixed">
-        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ''%> This Week</h1>
+        <h1>Events<%= @venue? link_to(" at #{@venue.name}", venue_path(@venue.id)) : ' In Iowa City'%> This Week</h1>
     </div>
 
     <div data-role="content" data-theme="b">
-        <ul data-role="listview" data-inset="true">
+        <ul data-role="listview" data-inset="false">
 				<li data-role="list-divider"><%= @events.first.begins_at.strftime("%A")%></li>
 					<% cur_day = @events.first.begins_at.wday %>
 					<% @events.each do |event| %>

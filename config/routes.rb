@@ -1,7 +1,7 @@
 Onesheet::Application.routes.draw do
 
   
-  root :to => "events#today"
+  root :to => "events#week"
   
   resources :venues do
     #collection actions should be applied to all records

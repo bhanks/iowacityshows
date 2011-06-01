@@ -99,13 +99,39 @@ class Event < ActiveRecord::Base
     Event.flush_events(venue_id)
     @events = []
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
-        loc = node.attributes["href"].value
-        @events << Event.englert_event_parser(loc, venue_id)
+      loc = node.attributes["href"].value
+      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+      reported_time = vevent.css(".event_name").text
+      if(reported_time.split(",")[0].split("-").length == 1)
+        start_time = DateTime.parse(vevent.css(".event_name").text)
+        #p start_time
+        @events << Event.englert_event_parser(vevent, venue_id,start_time)
+      else
+        #process multiple day events here
+        start_day = reported_time.split(",")[0].split("-")[0]
+        end_day = reported_time.split(",")[0].split("-")[1]
+          #p start_day
+          #p end_day
+      end
     end
 
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
       loc = node.attributes["href"].value
-      @events << Event.englert_event_parser(loc, venue_id)
+      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+      reported_time = vevent.css(".event_name").text
+      #p reported_time
+      if(reported_time.split(",")[0].split("-").length == 1)
+        start_time = DateTime.parse(vevent.css(".event_name").text)
+        #p start_time
+        @events << Event.englert_event_parser(vevent, venue_id,start_time)
+      else
+        #process multiple day events here
+        month = reported_time.split(",")[1].split("-")[0].split(" ")[0]
+        start_day = DateTime.parse(reported_time.split(",")[0].split("-")[0].strip+", "+reported_time.split(",")[1].split("-")[0]+", "+reported_time.split(",")[2].split("-")[0])
+        end_day = DateTime.parse(reported_time.split(",")[0].split("-")[1].strip+", #{month} "+reported_time.split(",")[1].split("-")[1]+", "+reported_time.split(",")[2].split("-")[0])
+        p start_day
+        p end_day
+      end
     end
 
     @events.each{|event| event.save}
@@ -113,11 +139,11 @@ class Event < ActiveRecord::Base
   end
   
   
-  def self.englert_event_parser(location, venue_id)
+  def self.englert_event_parser(vevent, venue_id, date)
     event = self.new
-    vevent = Nokogiri::HTML(open('http://www.englert.org/'+location)).css("#content_interior")
     event.name = vevent.css("h1").inner_html
-    event.begins_at = DateTime.parse(vevent.css(".event_name").text)
+    #event.begins_at = DateTime.parse(vevent.css(".event_name").text)
+    event.begins_at = date
     event.price = vevent.css("font")[0].inner_html
     event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text
     event.age_restriction = "All Ages"
