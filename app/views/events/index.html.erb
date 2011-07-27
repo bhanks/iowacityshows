@@ -1,23 +1,28 @@
+<div class="events">
+	<table class='events'>
+		<% @events.each do |event| %>
 
-<ul>
-	<% @events.each do |event| %>
 
 
-		<li>
-			<% event_name = raw event.name%>
-			<%= link_to( event_name, event_path(event.id)) %>
-			<%= event.begins_at.strftime("%m/%d/%Y") %>
-			<%= raw event.price %>
 
-			<% unless event.begins_at.nil? %>
-			<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %> / 
-			<% end %>
-			<%= event.age_restriction %>
+				<% event_name = raw event.name%>
+					<tr>
+						<td colspan=3 style="text-align:center"><%= link_to( event_name, event_path(event.id)) %><td>
+					</tr>
+					<tr>
+						<td><%= event.begins_at.strftime("%A, %b #{event.begins_at.day.ordinalize}, %Y") %></td>
+						<td><%= raw event.price %></td>
 
-		</li>
-	<% end %>
-</ul>
+					<% unless event.begins_at.nil? %>
+						<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
+					<% end %>
+						<td><%= event.age_restriction %></td>
+					</tr>
 
+
+		<% end %>
+	</table>
+</div>
 	
 <ul class="navigation">
 	<li><%= link_to("This Week", week_events_path()) %></li>

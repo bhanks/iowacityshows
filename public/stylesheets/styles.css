@@ -1,10 +1,23 @@
-ul.event li
+ul.events
 {
+	list-style-type:none;
 	display:inline;
 	
 }
 
-div.event
+div.events
 {
-	margin-top:15px;
+	margin:auto;
+}
+
+
+
+
+table
+{
+border-collapse:collapse;
+}
+table,th, td
+{
+border: 1px solid black;
 }
