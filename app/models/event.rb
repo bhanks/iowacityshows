@@ -23,7 +23,8 @@ class Event < ActiveRecord::Base
      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
      event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
      event.description = vevent.css(".description .gigpress-info-item").first.inner_html
-     event.price = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+     price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+     event.price = self.price_helper(price_text)
      event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
      event.venue_id = venue_id
      event.save
@@ -41,7 +42,8 @@ class Event < ActiveRecord::Base
       event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
       event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
       event.description = vevent.at(".//span[@class='gigpress-info-item' and not(span)]/text()").to_s.strip
-      event.price = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+      event.price = self.price_helper(price_text)
       event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
       event.venue_id = venue_id
       event.save
@@ -59,7 +61,9 @@ class Event < ActiveRecord::Base
       event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
       event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
       event.description = vevent.css(".gigpress-info-notes").inner_html
-      event.price = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+      #Prices stored as a single string in this format: [price],[price],...
+      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
+      event.price = self.price_helper(price_text)
       event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
       event.venue_id = venue_id
       event.save
@@ -84,9 +88,7 @@ class Event < ActiveRecord::Base
       event.name = vevent.css("a").inner_html
       event.description = vevent.css("p").inner_html
       price = vevent.css(".price").inner_html
-      unless price == ""
-        event.price = price.match(/Price: (\S+)/)[1]
-      end
+      event.price = self.price_helper(price)
       event.venue_id = venue_id
       event.save
       @events << event
@@ -144,7 +146,8 @@ class Event < ActiveRecord::Base
     event.name = vevent.css("h1").inner_html
     #event.begins_at = DateTime.parse(vevent.css(".event_name").text)
     event.begins_at = date
-    event.price = vevent.css("font")[0].inner_html
+    price_text = vevent.css("font")[0].inner_html.to_s
+    event.price = self.price_helper(price_text)
     event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text
     event.age_restriction = "All Ages"
     event.venue_id = venue_id
@@ -165,6 +168,16 @@ class Event < ActiveRecord::Base
       sunday = Date.today
     end
     sunday
+  end
+  
+  def self.price_helper(price_text)
+    
+    price = price_text.scan(/\$(\d+)/).flatten
+    if(price.empty?)
+      price = price_text.scan(/(Free|FREE)/).flatten
+    end
+    price = price.join(",")
+    price
   end
   
   

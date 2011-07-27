@@ -6,12 +6,20 @@
 
 
 				<% event_name = raw event.name%>
+				<% 
+					price_arr = event.price.split(",")
+					if( price_arr.first.casecmp("free") == 0)
+						price = event.price
+					else
+						price = price_arr.map{|a| a.insert(0,'$')}.join("/")
+					end
+				%>
 					<tr>
 						<td colspan=3 style="text-align:center"><%= link_to( event_name, event_path(event.id)) %><td>
 					</tr>
 					<tr>
 						<td><%= event.begins_at.strftime("%A, %b #{event.begins_at.day.ordinalize}, %Y") %></td>
-						<td><%= raw event.price %></td>
+						<td><%= price %></td>
 
 					<% unless event.begins_at.nil? %>
 						<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
