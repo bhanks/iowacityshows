@@ -1,10 +1,11 @@
+<% if @venue %>
+	<h1><%= @venue.name %></h1>
+<% end %>
 <div class="events">
-	<table class='events'>
-		<% @events.each do |event| %>
 
-
-
-
+	<% @events.each do |event| %>
+		<div class="item">
+			<div class="header">
 				<% event_name = raw event.name%>
 				<% 
 					price_arr = event.price.split(",")
@@ -13,23 +14,28 @@
 					else
 						price = price_arr.map{|a| a.insert(0,'$')}.join("/")
 					end
+			
+					colspan = (@venue)? 4 : 3
+
 				%>
-					<tr>
-						<td colspan=3 style="text-align:center"><%= link_to( event_name, event_path(event.id)) %><td>
-					</tr>
-					<tr>
-						<td><%= event.begins_at.strftime("%A, %b #{event.begins_at.day.ordinalize}, %Y") %></td>
-						<td><%= price %></td>
+					<h3 class='event title'>
+						<%= link_to( event_name, event_path(event.id)) %>
+					</h3>
+			</div>
+			<div class='details'>
+					<p class='event info'>
+						<span class='event date'><%= event.begins_at.strftime("%A, %b #{event.begins_at.day.ordinalize}, %Y") %></span>
+						<span class='event price'><%= price %></span>
 
 					<% unless event.begins_at.nil? %>
-						<td><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></td>
+						<span class='event time'><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></span>
 					<% end %>
-						<td><%= event.age_restriction %></td>
-					</tr>
+						<span class='event age'><%= event.age_restriction %></span>
+					</p>
+			</div>
+		</div>
+	<% end %>
 
-
-		<% end %>
-	</table>
 </div>
 	
 <ul class="navigation">
