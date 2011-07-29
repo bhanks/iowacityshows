@@ -1,8 +1,8 @@
 
 class EventsController < ApplicationController
   def index
-    if(params[:venue_id])
-      @events = Event.by_venue(params[:venue_id])
+    if(@venue)
+      @events = @venue.events
     else
       @events = Event.all
     end
@@ -13,16 +13,16 @@ class EventsController < ApplicationController
   end
   
   def today
-    if(params[:venue_id])
-      @events = Event.by_venue(params[:venue_id]).today
+    if(@venue)
+      @events = @venue.events.today
     else
       @events = Event.today
     end
   end
 
   def week
-    if(params[:venue_id])
-      @events = Event.by_venue(params[:venue_id]).week.order("events.begins_at ASC")
+    if(@venue)
+      @events = @venue.events.week.order("events.begins_at ASC")
     else
       @events = Event.week.order("events.begins_at ASC")
     end
