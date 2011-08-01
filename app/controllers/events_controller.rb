@@ -26,6 +26,7 @@ class EventsController < ApplicationController
     else
       @events = Event.week.order("events.begins_at ASC")
     end
+    render('index')
   end
   
   def new
