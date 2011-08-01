@@ -1,11 +1,4 @@
 /* http://colorschemedesigner.com/#3L32ng0tZiiGT */
-@media screen and (max-device-width: 480px)
-{
-	div.events
-	{
-		width:100%;
-	}
-}
 
 body
 {
@@ -113,4 +106,18 @@ h2.title
 	height: 18%;
 	margin: 5px 0px 15px;
 	color:#546489;
+}
+p.price, p.age
+{
+	float:left;
+	margin:0;
+}
+@media screen and (max-width: 480px)
+{
+	div.events
+	{
+		width:100%;
+		margin:0;
+	}
+
 }
