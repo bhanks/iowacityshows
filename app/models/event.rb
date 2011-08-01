@@ -22,7 +22,7 @@ class Event < ActiveRecord::Base
      event = Event.new
      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
      event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
-     event.description = vevent.css(".description .gigpress-info-item").first.inner_html
+     event.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
      event.price = self.price_helper(price_text)
      event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
@@ -148,7 +148,7 @@ class Event < ActiveRecord::Base
     event.begins_at = date
     price_text = vevent.css("font")[0].inner_html.to_s
     event.price = self.price_helper(price_text)
-    event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text
+    event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
     event.age_restriction = "All Ages"
     event.venue_id = venue_id
     event
@@ -182,12 +182,30 @@ class Event < ActiveRecord::Base
   
   def price_render()
     price_arr = self.price.split(",")
-		if( price_arr.first.casecmp("free") == 0)
-			price = self.price
-		else
-			price = price_arr.map{|a| a.insert(0,'$')}.join("/")
-		end
+    unless(price_arr.first.nil?)
+		  if( price_arr.first.casecmp("free") == 0)
+  			price = self.price
+  		else
+  			price = price_arr.map{|a| a.insert(0,'$')}.join("/")
+  		end
+  	else
+  	  price = ''
+  	end
 		price
+  end
+  
+  def description_render()
+    desc_string = self.description
+    if(self.description.length >= 120 )
+      desc_string = ""
+      self.description.scan(/\s\w*\s|\w*\s|\w*[.!]|\w*\W\w*/){ |w| 
+        break if desc_string.length > 120
+        desc_string << "#{w}"
+      }
+      desc_string << "..."
+    end
+    desc_string
+      
   end
   
 end

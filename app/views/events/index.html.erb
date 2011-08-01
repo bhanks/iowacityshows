@@ -2,26 +2,42 @@
 	<h1><%= @venue.name %></h1>
 <% end %>
 <div class="events">
-
+	<% altswitch = false %>
 	<% @events.each do |event| %>
-		<div class="item">
-			<div class="header">
-					<h3 class='event title'>
-						<%= link_to( event.name, event_path(event.id)) %>
-					</h3>
-			</div>
-			<div class='details'>
-					<p class='event info'>
-						<span class='event date'><%= event.begins_at.strftime("%A, %b #{event.begins_at.day.ordinalize}, %Y") %></span>
-						<span class='event price'><%= event.price_render() %></span>
-
-					<% unless event.begins_at.nil? %>
-						<span class='event time'><%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %></span>
-					<% end %>
-						<span class='event age'><%= event.age_restriction %></span>
+		<% 
+			if(altswitch) 
+				item = "'item alt'"
+			else
+				item = "'item'"
+			end
+			altswitch = !altswitch
+		%>
+		<div class=<%= item %> >
+			<div class="bullet">
+					<p class="bullet day">
+						<%= event.begins_at.strftime("%a")%>
+					</p>
+					<p class='event bullet'>
+						<%= event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
+					</p>
+					<p class='time bullet'>
+						<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %>
 					</p>
 			</div>
+			<div class='info'>
+
+						<h2 class='event title'><%= event.name %></h2>
+						<p class='description'><%= strip_tags event.description_render() %></p>
+						<div class="details">
+							<span class='event price'><%= event.price_render() %></span>
+
+
+							<span class='event age'><%= event.age_restriction %></span>
+						</div>
+
+			</div>
 		</div>
+		<div style="height:3px"></div>
 	<% end %>
 
 </div>
