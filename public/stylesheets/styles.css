@@ -1,4 +1,12 @@
 /* http://colorschemedesigner.com/#3L32ng0tZiiGT */
+@media screen and (max-device-width: 480px)
+{
+	div.events
+	{
+		width:100%;
+	}
+}
+
 body
 {
 	font-family:Helvetica,Arial,sans;
