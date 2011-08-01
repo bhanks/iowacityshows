@@ -112,6 +112,7 @@ p.price, p.age
 	float:left;
 	margin:0;
 }
+/*
 @media screen and (max-width: 480px)
 {
 	div.events
@@ -120,4 +121,4 @@ p.price, p.age
 		margin:0;
 	}
 
-}
+}*/
