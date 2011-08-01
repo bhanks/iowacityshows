@@ -180,5 +180,14 @@ class Event < ActiveRecord::Base
     price
   end
   
+  def price_render()
+    price_arr = self.price.split(",")
+		if( price_arr.first.casecmp("free") == 0)
+			price = self.price
+		else
+			price = price_arr.map{|a| a.insert(0,'$')}.join("/")
+		end
+		price
+  end
   
 end
