@@ -186,7 +186,7 @@ class Event < ActiveRecord::Base
 		  if( price_arr.first.casecmp("free") == 0)
   			price = self.price
   		else
-  			price = price_arr.map{|a| a.insert(0,'$')}.join("/")
+  			price = price_arr.map{|a| a.insert(0,'$')}.join(" / ")
   		end
   	else
   	  price = ''

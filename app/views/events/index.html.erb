@@ -5,39 +5,37 @@
 	<% altswitch = false %>
 	<% @events.each do |event| %>
 		<% 
-			if(altswitch) 
-				item = "'item alt'"
-			else
-				item = "'item'"
-			end
+			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>
 		<div class=<%= item %> >
 			<div class="bullet">
-					<p class="bullet day">
-						<%= event.begins_at.strftime("%a")%>
-					</p>
-					<p class='event bullet'>
+				<ul>
+					<li class="bullet day">
+						<%= event_day(event.begins_at)%>
+					</li>
+					<li class='date bullet'>
 						<%= event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
-					</p>
-					<p class='time bullet'>
+					</li>
+					<li class='time bullet'>
 						<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %>
-					</p>
+					</li>
+				</ul>
 			</div>
 			<div class='info'>
 
-						<h2 class='event title'><%= event.name %></h2>
-						<p class='description'><%= strip_tags event.description_render() %></p>
-						<div class="details">
-							<span class='event price'><%= event.price_render() %></span>
-
-
-							<span class='event age'><%= event.age_restriction %></span>
-						</div>
-
+				<h2 class='event title'><%= event.name %></h2>
+				<p class='description'><%= strip_tags event.description %></p>
+				<div class="details">
+					<ul>
+						<li class='event age'><%= event.age_restriction %></li>
+						<li class='price'><%= event.price_render() %></li>
+					</ul>
+				</div>
+				
 			</div>
+	
 		</div>
-		<div style="height:3px"></div>
 	<% end %>
 
 </div>

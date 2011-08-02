@@ -24,6 +24,7 @@ div.item
 	background-color:#eee;
 	/*border-bottom:3px solid #586EA0;*/
 	border-radius:9px;
+	margin-bottom:3px;
 }
 div.alt
 {
@@ -35,7 +36,7 @@ div.bullet
 	float:left;
 	width:20%;
 	height:100%;
-	border-right:1px solid black;
+	border-right:1px solid white;
 }
 
 
@@ -45,7 +46,10 @@ div.info
 	width:75%;
 	height:100%;
 	padding-left:15px;
+
 }
+
+
 
 div.header
 {
@@ -74,29 +78,52 @@ h1
 	color:#324A80;
 }
 
-p.bullet
+
+
+div.bullet ul
 {
-	padding:5px 7px;
-	margin:0;
-	color: #BD4447;
-	font-size:1.3em;
-	height:35%;
-}
-p.day, p.time
-{
-	color:#324A80;
-	height:20%;
-}
-p.time
-{
-	padding-top:14px;
+	list-style-type:none;
+	margin:0px;
+	padding-left:5px;
+	height:100%;
 }
 
+div.bullet ul li
+{
+	font-size:1.3em;
+}
+
+li.date
+{
+	height:44%;
+}
+
+li.day
+{
+	height:33%;
+}
+
+li.time
+{
+	padding-top:3px;
+}
+
+li.day, li.time
+{
+	color:#324A80;
+
+}
+li.date
+{
+	color: #BD4447;
+}
 
 p.description
 {
-	font-size:.9em;
-	margin: 0px;
+	font-size:1em;
+	line-height: 1.3em;
+	overflow: hidden;
+	margin: 0px 1em 0px 0px;
 	height: 40%;
 }
 h2.title
@@ -105,4 +132,34 @@ h2.title
 	height: 18%;
 	margin: 5px 0px 15px;
 	color:#546489;
+	line-height:1.3em;
+	overflow:hidden;
+}
+
+div.price h2
+{
+	font-size:1.4em;
+	word-wrap:break-word;
+}
+
+div.details ul
+{
+	list-style-type:none;
+	margin:0px;
+	padding:0px;
+
+}
+div.details ul li
+{
+
+	display:inline;
+	font-size:1.1em;
+	font-weight: bold;
+}
+
+div.details ul li.price
+{
+	float:right;
+	margin-right:1em;
+	font-style:bold;
 }
