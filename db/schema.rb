@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110526190013) do
+ActiveRecord::Schema.define(:version => 20110802203358) do
 
   create_table "admins", :force => true do |t|
     t.string "username"
@@ -50,6 +50,7 @@ ActiveRecord::Schema.define(:version => 20110526190013) do
     t.string   "event_list_url"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "display_name"
   end
 
 end

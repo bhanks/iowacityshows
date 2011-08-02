@@ -29,7 +29,7 @@
 			<div class="bullet">
 				<ul>
 					<li class="bullet day">
-						<%= (mixed)? event.venue.name : event_day(event.begins_at)%>
+						<%= (mixed)? event.venue.display_name : event_day(event.begins_at)%>
 					</li>
 					<li class='date bullet'>
 						<%= (mixed)? "" : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
