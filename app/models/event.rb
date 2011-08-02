@@ -180,32 +180,5 @@ class Event < ActiveRecord::Base
     price
   end
   
-  def price_render()
-    price_arr = self.price.split(",")
-    unless(price_arr.first.nil?)
-		  if( price_arr.first.casecmp("free") == 0)
-  			price = self.price
-  		else
-  			price = price_arr.map{|a| a.insert(0,'$')}.join(" / ")
-  		end
-  	else
-  	  price = ''
-  	end
-		price
-  end
-  
-  def description_render()
-    desc_string = self.description
-    if(self.description.length >= 120 )
-      desc_string = ""
-      self.description.scan(/\s\w*\s|\w*\s|\w*[.!]|\w*\W\w*/){ |w| 
-        break if desc_string.length > 120
-        desc_string << "#{w}"
-      }
-      desc_string << "..."
-    end
-    desc_string
       
-  end
-  
 end

@@ -9,7 +9,7 @@
 			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>
-		<div class=<%= item %> onclick="alert('Test')">
+		<div class=<%= item %> onclick=<%="window.location='#{event_path(event.id)}'"%>>
 			<div class="bullet">
 				<ul>
 					<li class="bullet day">
@@ -19,7 +19,7 @@
 						<%= event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
 					</li>
 					<li class='time bullet'>
-						<%= (event.begins_at.hour > 12)? "#{event.begins_at.hour % 12} PM": "#{event.begins_at.hour % 12} AM" %>
+						<%= am_pm(event.begins_at) %>
 					</li>
 				</ul>
 			</div>
@@ -31,7 +31,7 @@
 				<div class="details">
 					<ul>
 						<li class='event age'><%= event.age_restriction %></li>
-						<li class='price'><%= event.price_render() %></li>
+						<li class='price'><%= price_render(event.price) %></li>
 					</ul>
 				</div>
 				

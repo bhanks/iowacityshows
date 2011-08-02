@@ -27,6 +27,12 @@ div.item
 	border-radius:9px;
 	margin-bottom:3px;
 }
+div.item:hover
+{
+	cursor:pointer;
+	background-color:#fff;
+}
+
 div.alt
 {
 	background-color:#ddd;
@@ -38,7 +44,6 @@ div.bullet
 	width:20%;
 	height:100%;
 	border-right:1px solid white;
-
 }
 
 
