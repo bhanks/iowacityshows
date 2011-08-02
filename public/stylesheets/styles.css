@@ -60,9 +60,9 @@ div.info
 
 div.header
 {
-	background-color:#eee;
-	border-top-left-radius:10px;
-	border-top-right-radius:10px;
+	font-size:1.4em;
+	line-height:1.5em;
+	color:white;
 }
 
 div.details
@@ -97,7 +97,7 @@ div.bullet ul
 
 div.bullet ul li
 {
-	font-size:1.3em;
+	font-size:1.1em;
 }
 
 li.date
@@ -144,7 +144,11 @@ h2.title
 	line-height:1.3em;
 	overflow:hidden;
 }
-
+h2.venue
+{
+	margin:4px;
+	font-size:1em;
+}
 div.price h2
 {
 	font-size:1.4em;

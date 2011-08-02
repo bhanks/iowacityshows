@@ -3,7 +3,15 @@
 
 <% if @venue %>
 	<h1><%= @venue.name %></h1>
-<% end %>
+<%
+	else
+%>
+	<h1>Events in Iowa City</h1>
+<%
+		mixed = true
+		cur_day = ""
+	end 
+%>
 <div class="events">
 	<% altswitch = false %>
 	<% @events.each do |event| %>
@@ -11,14 +19,20 @@
 			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>
+		<% if mixed && event_day(event.begins_at) != cur_day %>
+			<div class="header"><%= event.begins_at.strftime("%A, %B #{event.begins_at.day.ordinalize}")%></div>
+		<% 
+				cur_day = event_day(event.begins_at)
+			 end 
+		%>
 		<div class=<%= item %> onclick=<%="window.location='#{event_path(event.id)}'"%>>
 			<div class="bullet">
 				<ul>
 					<li class="bullet day">
-						<%= event_day(event.begins_at)%>
+						<%= (mixed)? event.venue.name : event_day(event.begins_at)%>
 					</li>
 					<li class='date bullet'>
-						<%= event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
+						<%= (mixed)? "" : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
 					</li>
 					<li class='time bullet'>
 						<%= am_pm(event.begins_at) %>
