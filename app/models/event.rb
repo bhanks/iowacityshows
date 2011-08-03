@@ -136,7 +136,7 @@ class Event < ActiveRecord::Base
       end
     end
 
-    @events.each{|event| event.save}
+    #@events.each{|event| event.save}
     @events
   end
   
@@ -151,7 +151,7 @@ class Event < ActiveRecord::Base
     event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
     event.age_restriction = "All Ages"
     event.venue_id = venue_id
-    event
+    event.save
   end
     
   
