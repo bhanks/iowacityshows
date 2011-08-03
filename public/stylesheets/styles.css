@@ -199,7 +199,7 @@ div.details ul li.price
 	list-style-type:none;
 	margin:0;
 	padding:0 2em;
-	width:90%;
+	width:100%;
 	background-color:#324A80;
 	float:left;
 }
@@ -236,6 +236,6 @@ div.details ul li.price
 	}
 	.individual ul li
 	{
-		/*margin-right:1em;*/
+		font-size:1em;
 	}
 }

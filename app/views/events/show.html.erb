@@ -3,14 +3,14 @@
 	<h1><%= @event.name%></h1>
 
 	<h2><%= "@ #{@event.venue.name}" %></h2>
-	
-	<ul>
-		<li><%= event_day_indiv(@event.begins_at) %></li>
-		<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
-		<li><%= price_render(@event.price) %></li>
-		<li><%= @event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
-	</ul>
-	
+	<div style="float:left;width:90%">
+		<ul>
+			<li><%= event_day_indiv(@event.begins_at) %></li>
+			<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
+			<li><%= price_render(@event.price) %></li>
+			<li><%= @event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
+		</ul>
+	</div>
 	<p><%= strip_tags @event.description %></p>
 
 </div>
