@@ -198,10 +198,13 @@ div.details ul li.price
 {
 	list-style-type:none;
 	margin:0;
-	padding:0 2em;
+	padding:0;
 	width:100%;
 	background-color:#324A80;
 	float:left;
+	-webkit-padding-start: 0px;
+	-webkit-margin-after: 0px;
+	-webkit-margin-before: 0px;
 }
 
 .individual ul li
