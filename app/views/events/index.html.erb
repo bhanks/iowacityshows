@@ -1,17 +1,4 @@
-<meta name="viewport" content="width=device-width, maximum-scale=1.6" />
-<script type="text/javascript">
-var updateLayout = function() {
-  if (window.innerWidth != currentWidth) {
-    currentWidth = window.innerWidth;
-    var orient = (currentWidth == 320) ? "profile" : "landscape";
-    document.body.setAttribute("orient", orient);
-    window.scrollTo(0, 1);
-  }
-};
 
-iPhone.DomLoad(updateLayout);
-setInterval(updateLayout, 400);
-</script>
 
 <% if @venue %>
 	<h1><%= @venue.name %></h1>
