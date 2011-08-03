@@ -45,7 +45,7 @@
 				<p class='description'><%= strip_tags event.description %></p>
 				<div class="details">
 					<ul>
-						<li class='event age'><%= event.age_restriction %></li>
+						<li class='event age'><%= event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
 						<li class='price'><%= price_render(event.price) %></li>
 					</ul>
 				</div>
