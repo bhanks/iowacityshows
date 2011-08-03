@@ -12,17 +12,14 @@
   <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.css" />
   <script src="http://code.jquery.com/jquery-1.4.3.min.js"></script>
 	<script type="text/javascript">
-		var updateLayout = function() {
-		  if (window.innerWidth != currentWidth) {
-		    currentWidth = window.innerWidth;
-		    var orient = (currentWidth == 320) ? "profile" : "landscape";
-		    document.body.setAttribute("orient", orient);
-		    window.scrollTo(0, 1);
-		  }
-		};
-
-		iPhone.DomLoad(updateLayout);
-		setInterval(updateLayout, 400);
+	var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+	document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+	</script>
+	<script type="text/javascript">
+	try{ 
+	var pageTracker = _gat._getTracker("UA-12499947-3");
+	pageTracker._trackPageview();
+	} catch(err) {} 
 	</script>
 	
   <!--script src="http://code.jquery.com/mobile/1.0a1/jquery.mobile-1.0a1.min.js"></script-->
