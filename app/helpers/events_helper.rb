@@ -13,6 +13,15 @@ module EventsHelper
     str
   end
   
+  def event_day_indiv(event_date)
+    if(event_date.month == Date.today.month && event_date.mday == Date.today.mday)
+      str = "Today"
+    else
+      str = event_date.strftime("%a")
+    end
+    str
+  end
+  
   def price_render(pstr)
     price_arr = pstr.split(",")
     unless(price_arr.first.nil?)

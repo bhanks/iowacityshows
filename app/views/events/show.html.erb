@@ -1,37 +1,17 @@
-<div data-role="page" data-theme="b">
-	<div data-role="header" data-theme="b">
-		<h1>Event</h1>
-	</div>
+<div class="individual">
 
-	<div data-role="content" data-theme="b">
-		<table summary="event detail view">
-			<tr>
-				<th>Name</th>
-				<td><%= @event.name%></td>
-			</tr>
-			<tr>
-				<th>Venue</th>
-				<td><%= @event.venue.name%></td>
-			</tr>
-			<tr>
-				<th>Begins at</th>
-				<td><%= @event.begins_at %></td>
-			</tr>
-			<tr>
-				<th>Description</th>
-				<td><%= raw @event.description %></td>
-			</tr>
-			<tr>
-				<th>Price</th>
-				<td><%= raw @event.price %></td>
-			</tr>
-			<tr>
-				<th>Age Restriction</th>
-				<td><%= @event.age_restriction %></td>
-			</tr>
-		</table>
+	<h1><%= @event.name%></h1>
+
+	<h2><%= "@ #{@event.venue.name}" %></h2>
 	
-	</div>
+	<ul>
+		<li><%= event_day_indiv(@event.begins_at) %></li>
+		<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
+		<li><%= price_render(@event.price) %></li>
+		<li><%= @event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
+	</ul>
+	
+	<p><%= strip_tags @event.description %></p>
 
 </div>
 

@@ -111,7 +111,7 @@ li.date
 li.day
 {
 	height:30%;
-	padding-top:10px;
+	padding-top:8px;
 }
 
 li.time
@@ -181,6 +181,40 @@ div.details ul li.price
 	color: #BD4447;
 }
 
+.individual h2
+{
+	text-align:center;
+}
+
+.individual p
+{
+	letter-spacing:1px;
+	font-size:1em;
+	padding-right: 2em;
+	margin-top:6em;
+}
+
+.individual ul
+{
+	list-style-type:none;
+	margin:0;
+	padding:0 2em;
+	width:90%;
+	background-color:#324A80;
+	float:left;
+}
+
+.individual ul li
+{
+	display:inline-block;
+	width:25%;
+	color:white;
+	font-size:1.3em;
+	line-height:1.5em;
+	text-align:center;
+	float:left;
+}
+
 @media all and (max-width:800px)
 {
 
@@ -195,5 +229,13 @@ div.details ul li.price
 		line-height:1.42em;
 		font-weight:normal;
 		margin-bottom:10px;
+	}
+	.individual p
+	{
+		font-size: .8em;
+	}
+	.individual ul li
+	{
+		/*margin-right:1em;*/
 	}
 }
