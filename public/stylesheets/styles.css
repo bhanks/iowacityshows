@@ -26,6 +26,7 @@ div.item
 	background-color:#eee;
 	/*border-bottom:3px solid #586EA0;*/
 	border-radius:9px;
+	-webkit-border-radius:9px;
 	margin-bottom:3px;
 }
 div.item:hover
@@ -81,7 +82,8 @@ h3
 
 h1
 {
-	width:50%;
+	width:100%;
+	text-align:center;
 	margin:auto;
 	color:#324A80;
 }
@@ -179,3 +181,11 @@ div.details ul li.price
 	color: #BD4447;
 }
 
+@media all and (max-width:800px)
+{
+
+	div.bullet ul li
+	{
+		font-size:1em;
+	}
+}
