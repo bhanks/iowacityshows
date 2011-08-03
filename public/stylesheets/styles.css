@@ -3,6 +3,7 @@
 body
 {
 	font-family:Helvetica,Arial,sans;
+
 }
 ul.events
 {
@@ -16,7 +17,7 @@ div.events
 	margin: 15px auto;
 	padding: 5px;
 	background-color: #586EA0;
-	width:90%;
+	/*width:90%;*/
 }
 
 div.item
