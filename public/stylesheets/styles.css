@@ -105,13 +105,13 @@ div.bullet ul li
 
 li.date
 {
-	height:44%;
+	height:40%;
 }
 
 li.day
 {
 	height:30%;
-	padding-top:5px;
+	padding-top:10px;
 }
 
 li.time
@@ -187,5 +187,13 @@ div.details ul li.price
 	div.bullet ul li
 	{
 		font-size:1em;
+	}
+	
+	h2.title
+	{
+		font-size:1.1em;
+		line-height:1.42em;
+		font-weight:normal;
+		margin-bottom:10px;
 	}
 }

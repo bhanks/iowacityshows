@@ -143,7 +143,7 @@ class Event < ActiveRecord::Base
   
   def self.englert_event_parser(vevent, venue_id, date)
     event = self.new
-    event.name = vevent.css("h1").inner_html
+    event.name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
     #event.begins_at = DateTime.parse(vevent.css(".event_name").text)
     event.begins_at = date
     price_text = vevent.css("font")[0].inner_html.to_s
