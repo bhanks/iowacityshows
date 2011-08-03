@@ -218,6 +218,12 @@ div.details ul li.price
 	float:left;
 }
 
+.individual a
+{
+	color:black;
+	text-decoration:none;
+}
+
 @media all and (max-width:800px)
 {
 
