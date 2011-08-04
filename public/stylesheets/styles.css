@@ -3,7 +3,8 @@
 body
 {
 	font-family:Helvetica,Arial,sans;
-
+	width:60%;
+	margin:auto;
 }
 ul.events
 {
@@ -27,6 +28,7 @@ div.item
 	/*border-bottom:3px solid #586EA0;*/
 	border-radius:9px;
 	-webkit-border-radius:9px;
+	-moz-border-radius:9px;
 	margin-bottom:3px;
 }
 div.item:hover
@@ -179,11 +181,17 @@ div.details ul li.price
 	margin-right:1em;
 	font-style:bold;
 	color: #BD4447;
+	visibility:hidden;
 }
+
+
 
 @media all and (max-width:800px)
 {
-
+	body
+	{
+		width:99%;
+	}
 	div.bullet ul li
 	{
 		font-size:1em;
@@ -195,5 +203,13 @@ div.details ul li.price
 		line-height:1.42em;
 		font-weight:normal;
 		margin-bottom:10px;
+	}
+	li.price.date
+	{
+		visibility:hidden;
+	}
+	div.details ul li.price
+	{
+		visibility:inherit;
 	}
 }
