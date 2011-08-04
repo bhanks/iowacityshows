@@ -3,7 +3,7 @@
 	<h1><%= @event.name%></h1>
 
 	<h2><%= link_to( "@ #{@event.venue.name}", @event.venue.site_url) %></h2>
-	<!--div style="float:left;width:85%"-->
+
 		<ul>
 			<li><%= event_day_indiv(@event.begins_at) %></li>
 			<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>

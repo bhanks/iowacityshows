@@ -49,8 +49,7 @@ class EventsController < ApplicationController
 
   def edit
     @event = Event.find(params[:id])
-    @date = Hash.new
-    @date[:month], @date[:day], @date[:year] = @event.date.to_s.split("/")
+
   end
 
   def update
