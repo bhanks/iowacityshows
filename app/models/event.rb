@@ -85,7 +85,7 @@ class Event < ActiveRecord::Base
       elsif event.begins_at.hour >= 22
         event.age_restriction = "21+"
       end
-      event.name = vevent.css("a").inner_html
+      event.name = vevent.css("a").text
       event.description = vevent.css("p").inner_html
       price = vevent.css(".price").inner_html
       event.price = self.price_helper(price)
