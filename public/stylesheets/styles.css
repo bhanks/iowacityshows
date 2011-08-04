@@ -246,7 +246,7 @@ div.details ul li.price
 		font-weight:normal;
 		margin-bottom:10px;
 	}
-<<<<<<< HEAD
+
 	.individual p
 	{
 		font-size: .8em;
@@ -254,7 +254,8 @@ div.details ul li.price
 	.individual ul li
 	{
 		font-size:1em;
-=======
+	}
+	
 	li.price.date
 	{
 		visibility:hidden;
@@ -262,6 +263,6 @@ div.details ul li.price
 	div.details ul li.price
 	{
 		visibility:inherit;
->>>>>>> development
+
 	}
 }
