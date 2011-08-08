@@ -28,6 +28,7 @@ Onesheet::Application.routes.draw do
       get :today
       get :scrape
       get :week
+      get :unconfirmed
     end
   end
   

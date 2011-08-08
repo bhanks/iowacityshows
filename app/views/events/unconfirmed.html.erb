@@ -1,0 +1,14 @@
+<h1>Unconfirmed Events</h1>
+<table class="unconfirmed">
+	<th>Event Name</th>
+	<th>Venue</th>
+	<th>Action</th>
+<% @events.each do |event| %>
+	<tr>
+		<td class='name'><%= event.scraped_name %></td>
+		<td class='venue'><%= event.venue.name %></td>
+		<td class='action'><%= link_to "Confirm", edit_event_path(event.id) %></td>
+	</tr>
+	
+<% end %>
+</table>

@@ -10,28 +10,49 @@ class Event < ActiveRecord::Base
   }
   
   scope :week, lambda{
-    where("events.begins_at >= ? and events.begins_at <= ?", Date.today, Event.next_sunday+1 )
+    where("events.begins_at >= ? and events.begins_at <= ? ", Date.today, Event.next_sunday+1 )
   }
   
   scope :past, lambda{
     where("events.begins_at < ?", Date.today)
   }
   
+  scope :unconfirmed, lambda{
+    where("events.confirmed = ?", 0)
+  }
+  
+  scope :confirmed, lambda{
+    where("events.confirmed = ?", 1)
+  }
+  
+  
   def self.mill_events
     venue_id = Venue.find_by_name("The Mill").id
     Event.flush_events(venue_id)
     @events = []
-    Nokogiri::HTML(open('http://icmill.com/?page_id=5')).css("#posts .vevent").map do |vevent|
-     event = Event.new
-     event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-     event.name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&").strip
-     event.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
+    url = 'http://icmill.com/?page_id=5'
+    Nokogiri::HTML(open(url)).css("#posts .vevent").map do |vevent|
+     scratch = Event.new
+     scratch.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
+     scratch.scraped_name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&").strip
+     scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")     
+     scratch.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
-     event.price = self.price_helper(price_text)
-     event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
-     event.venue_id = venue_id
-     event.save
-     @events << event
+     scratch.price = self.price_helper(price_text)
+     scratch.scraped_age = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
+     scratch.url = url
+     permanent = Event.find_by_marker(scratch.marker)
+     if(permanent.nil?)
+       #If no event with this marker exists, go ahead and save everything.
+       scratch.save
+       @events << scratch
+     else
+       unless [:scraped_name, :scraped_age, :begins_at].all? {|a| scratch.send(a) == permanent.send(a)}
+         permanent.confirmed = 0
+         permanent.save
+         @events << permanent
+       end
+     end
     end
     @events
   end
@@ -40,17 +61,31 @@ class Event < ActiveRecord::Base
     venue_id = Venue.find_by_name("Gabe's").id
     Event.flush_events(venue_id)
     @events = []
-    Nokogiri::HTML(open('http://www.iowacitygabes.com/calendar/')).css("tbody.vevent").map do |vevent|
-      event = self.new
-      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-      event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
-      event.description = vevent.at(".//span[@class='gigpress-info-item' and not(span)]/text()").to_s.strip
+    url = 'http://www.iowacitygabes.com/calendar/'
+    
+    Nokogiri::HTML(open(url)).css("tbody.vevent").map do |vevent|
+      scratch = self.new
+      scratch.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
+      scratch.scraped_name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
+      scratch.description = vevent.at(".//span[@class='gigpress-info-item' and not(span)]/text()").to_s.strip
       price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
-      event.price = self.price_helper(price_text)
-      event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
-      event.venue_id = venue_id
-      event.save
-      @events << event
+      scratch.price = self.price_helper(price_text)
+      scratch.scraped_age = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
+      scratch.venue_id = venue_id
+      scratch.url = url
+      scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")
+      permanent = Event.find_by_marker(scratch.marker)
+      if(permanent.nil?)
+        #If no event with this marker exists, go ahead and save everything.
+        scratch.save
+        @events << scratch
+      else
+        unless [:scraped_name, :scraped_age, :begins_at].all? {|a| scratch.send(a) == permanent.send(a)}
+          permanent.confirmed = 0
+          permanent.save
+          @events << permanent
+        end
+      end
     end
     @events
   end
@@ -59,19 +94,34 @@ class Event < ActiveRecord::Base
     venue_id = Venue.find_by_name("Blue Moose Taphouse").id
     Event.flush_events(venue_id)
     @events = []
-    Nokogiri::HTML(open('http://bluemooseic.com/events/')).css("tbody.vevent").map do |vevent|
-      event = self.new
-      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-      event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
-      event.description = vevent.css(".gigpress-info-notes").inner_html
+    url = 'http://bluemooseic.com/events/'
+    
+    Nokogiri::HTML(open(url)).css("tbody.vevent").map do |vevent|
+      scratch = self.new
+      scratch.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
+      scratch.scraped_name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
+      scratch.description = vevent.css(".gigpress-info-notes").inner_html
       #Prices stored as a single string in this format: [price],[price],...
       price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
-      event.price = self.price_helper(price_text)
-      event.age_restriction = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
-      event.venue_id = venue_id
-      event.save
-
-      @events << event
+      scratch.scraped_age = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
+      
+      scratch.price = self.price_helper(price_text)
+      scratch.venue_id = venue_id
+      scratch.url = url
+      scratch.confirmed = 0
+      scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")
+      permanent = Event.find_by_marker(scratch.marker)
+      if(permanent.nil?)
+        #If no event with this marker exists, go ahead and save everything.
+        scratch.save
+        @events << scratch
+      else
+        unless [:scraped_name, :scraped_age, :begins_at].all? {|a| scratch.send(a) == permanent.send(a)}
+          permanent.confirmed = 0
+          permanent.save
+          @events << permanent
+        end
+      end
     end
     @events
   end
@@ -80,21 +130,31 @@ class Event < ActiveRecord::Base
     venue_id = Venue.find_by_name("The Yacht Club").id
     Event.flush_events(venue_id)
     @events = []
-    Nokogiri::HTML(open('http://www.iowacityyachtclub.org/calendar.html')).css(".entry").map do |vevent|
-      event = self.new
-      event.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
-      if event.begins_at.hour < 22
-        event.age_restriction = "19+"
-      elsif event.begins_at.hour >= 22
-        event.age_restriction = "21+"
-      end
-      event.name = vevent.css("a").text
-      event.description = vevent.css("p").inner_html
+    url = 'http://www.iowacityyachtclub.org/calendar.html'
+    
+    Nokogiri::HTML(open(url)).css(".entry").map do |vevent|
+      scratch = self.new
+      scratch.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
+      scratch.scraped_name = vevent.css("a").text
+      scratch.description = vevent.css("p").inner_html
       price = vevent.css(".price").inner_html
-      event.price = self.price_helper(price)
-      event.venue_id = venue_id
-      event.save
-      @events << event
+      scratch.price = self.price_helper(price)
+      scratch.venue_id = venue_id
+      scratch.confirmed = 0
+      scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")
+      scratch.url = url
+      permanent = Event.find_by_marker(scratch.marker)
+      if(permanent.nil?)
+        #If no event with this marker exists, go ahead and save everything.
+        scratch.save
+        @events << scratch
+      else
+        unless [:scraped_name, :begins_at].all? {|a| scratch.send(a) == permanent.send(a)}
+          permanent.confirmed = 0
+          permanent.save
+          @events << permanent
+        end
+      end
     end
     @events
   end
@@ -106,55 +166,43 @@ class Event < ActiveRecord::Base
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
       loc = node.attributes["href"].value
       vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-      reported_time = vevent.css(".event_name").text
-      if(reported_time.split(",")[0].split("-").length == 1)
-        start_time = DateTime.parse(vevent.css(".event_name").text)
-        #p start_time
-        @events << Event.englert_event_parser(vevent, venue_id,start_time)
-      else
-        #process multiple day events here
-        start_day = reported_time.split(",")[0].split("-")[0]
-        end_day = reported_time.split(",")[0].split("-")[1]
-          #p start_day
-          #p end_day
-      end
+      @events << Event.englert_event_parser(vevent, venue_id,loc)
     end
 
     Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
       loc = node.attributes["href"].value
       vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-      reported_time = vevent.css(".event_name").text
-      #p reported_time
-      if(reported_time.split(",")[0].split("-").length == 1)
-        start_time = DateTime.parse(vevent.css(".event_name").text)
-        #p start_time
-        @events << Event.englert_event_parser(vevent, venue_id,start_time)
-      else
-        #process multiple day events here
-        month = reported_time.split(",")[1].split("-")[0].split(" ")[0]
-        start_day = DateTime.parse(reported_time.split(",")[0].split("-")[0].strip+", "+reported_time.split(",")[1].split("-")[0]+", "+reported_time.split(",")[2].split("-")[0])
-        end_day = DateTime.parse(reported_time.split(",")[0].split("-")[1].strip+", #{month} "+reported_time.split(",")[1].split("-")[1]+", "+reported_time.split(",")[2].split("-")[0])
-        p start_day
-        p end_day
-      end
+      @events << Event.englert_event_parser(vevent, venue_id,loc)
     end
 
-    #@events.each{|event| event.save}
     @events
   end
   
   
-  def self.englert_event_parser(vevent, venue_id, date)
-    event = self.new
-    event.name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
-    #event.begins_at = DateTime.parse(vevent.css(".event_name").text)
-    event.begins_at = date
+  def self.englert_event_parser(vevent, venue_id, url)
+    scratch = self.new
+    scratch.scraped_name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
     price_text = vevent.css("font")[0].inner_html.to_s
-    event.price = self.price_helper(price_text)
-    event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
-    event.age_restriction = "All Ages"
-    event.venue_id = venue_id
-    event.save
+    scratch.price = self.price_helper(price_text)
+    scratch.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
+    scratch.scraped_age = "All Ages"
+    scratch.venue_id = venue_id
+    scratch.confirmed = 0
+    scratch.marker = url
+    scratch.url = "http://englert.org/#{url}"
+    permanent = Event.find_by_marker(scratch.marker)
+    if(permanent.nil?)
+      #If no event with this marker exists, go ahead and save everything.
+      scratch.save
+      event = scratch
+    else
+      unless [:scraped_name].all? {|a| scratch.send(a) == permanent.send(a)}
+        permanent.confirmed = 0
+        permanent.save
+        event = permanent
+      end
+    end
+    event
   end
     
   
@@ -182,6 +230,9 @@ class Event < ActiveRecord::Base
     price = price.join(",")
     price
   end
-  
+
+  def name
+    self[:name] ||= self[:scraped_name]
+  end
       
 end

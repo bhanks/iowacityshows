@@ -2,9 +2,9 @@
 class EventsController < ApplicationController
   def index
     if(@venue)
-      @events = @venue.events.order("events.begins_at ASC")
+      @events = @venue.events.confirmed.order("events.begins_at ASC")
     else
-      @events = Event.order("events.begins_at ASC")
+      @events = Event.confirmed.order("events.begins_at ASC")
     end
   end
 
@@ -22,9 +22,9 @@ class EventsController < ApplicationController
 
   def week
     if(@venue)
-      @events = @venue.events.week.order("events.begins_at ASC")
+      @events = @venue.events.confirmed.week.order("events.begins_at ASC")
     else
-      @events = Event.week.order("events.begins_at ASC")
+      @events = Event.confirmed.week.order("events.begins_at ASC")
     end
     render('index')
   end
@@ -77,6 +77,14 @@ class EventsController < ApplicationController
   def scrape
     Delayed::Job.enqueue(ScrapingJob.new())
     flash[:notice] = "Scrape initiated."
+  end
+  
+  def unconfirmed
+    if(@venue)
+      @events = @venue.events.unconfirmed
+    else
+      @events = Event.unconfirmed
+    end
   end
   
   

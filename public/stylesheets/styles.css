@@ -3,6 +3,12 @@
 body
 {
 	font-family:Helvetica,Arial,sans;
+	/*width:60%;*/
+	margin:auto;
+}
+
+div.wrapper, div.individual
+{
 	width:60%;
 	margin:auto;
 }
@@ -227,13 +233,35 @@ div.details ul li.price
 {
 	color:black;
 	text-decoration:none;
+	
 }
+
+table.unconfirmed
+{
+		margin:auto;
+}
+table.unconfirmed th, td
+{
+	text-align:left;
+	font-size:14px;
+	border:1px solid black;
+	padding: 5px 15px;
+
+}
+
+table.unconfirmed td.name
+{
+	width:200px;
+	overflow:hidden;
+}
+
 
 @media all and (max-width:800px)
 {
-	body
+	div.wrapper, div.individual
 	{
 		width:99%;
+		/*margin:auto;*/
 	}
 	div.bullet ul li
 	{

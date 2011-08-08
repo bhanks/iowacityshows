@@ -8,7 +8,7 @@
 			<li><%= event_day_indiv(@event.begins_at) %></li>
 			<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
 			<li><%= price_render(@event.price) %></li>
-			<li><%= @event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
+			<li><%= @event.age_restriction %></li>
 		</ul>
 
 	<p><%= strip_tags @event.description %></p>
