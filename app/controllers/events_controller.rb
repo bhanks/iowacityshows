@@ -2,9 +2,9 @@
 class EventsController < ApplicationController
   def index
     if(@venue)
-      @events = @venue.events
+      @events = @venue.events.order("events.begins_at ASC")
     else
-      @events = Event.all
+      @events = Event.order("events.begins_at ASC")
     end
   end
 
@@ -55,7 +55,7 @@ class EventsController < ApplicationController
   def update
     @event = Event.find(params[:id])
     if @event.update_attributes(params[:event])
-      @event.date = "#{params[:year]}-#{params[:month]}-#{params[:day]}".to_date
+      #@event.date = "#{params[:year]}-#{params[:month]}-#{params[:day]}".to_date
       @event.save
       flash[:notice] = "Event updated successfully."
       redirect_to(:action => 'index')
@@ -75,12 +75,7 @@ class EventsController < ApplicationController
   end
   
   def scrape
-    #@events = Event.mill_events
-    #@events += Event.gabes_events
-    #@events += Event.blue_moose_events
-    #@events += Event.yacht_club_events
     Delayed::Job.enqueue(ScrapingJob.new())
-    #Delayed::Job.enqueue(ScrapingJob.new("The Englert"))
     flash[:notice] = "Scrape initiated."
   end
   

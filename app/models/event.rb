@@ -13,6 +13,9 @@ class Event < ActiveRecord::Base
     where("events.begins_at >= ? and events.begins_at <= ?", Date.today, Event.next_sunday+1 )
   }
   
+  scope :past, lambda{
+    where("events.begins_at < ?", Date.today)
+  }
   
   def self.mill_events
     venue_id = Venue.find_by_name("The Mill").id
@@ -21,7 +24,7 @@ class Event < ActiveRecord::Base
     Nokogiri::HTML(open('http://icmill.com/?page_id=5')).css("#posts .vevent").map do |vevent|
      event = Event.new
      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-     event.name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&")
+     event.name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&").strip
      event.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
      event.price = self.price_helper(price_text)
@@ -156,7 +159,7 @@ class Event < ActiveRecord::Base
     
   
   def self.flush_events(venue_id)
-    events = Event.by_venue(venue_id)
+    events = Event.by_venue(venue_id).past
     events.delete_all
   end
   
