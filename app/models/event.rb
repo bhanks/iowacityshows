@@ -21,7 +21,7 @@ class Event < ActiveRecord::Base
     Nokogiri::HTML(open('http://icmill.com/?page_id=5')).css("#posts .vevent").map do |vevent|
      event = Event.new
      event.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-     event.name = vevent.css(".gigpress-artist").at("./text()").to_s.strip
+     event.name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&")
      event.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
      price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
      event.price = self.price_helper(price_text)
