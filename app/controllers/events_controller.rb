@@ -55,10 +55,9 @@ class EventsController < ApplicationController
   def update
     @event = Event.find(params[:id])
     if @event.update_attributes(params[:event])
-      #@event.date = "#{params[:year]}-#{params[:month]}-#{params[:day]}".to_date
       @event.save
       flash[:notice] = "Event updated successfully."
-      redirect_to(:action => 'index')
+      redirect_to(:action => 'unconfirmed')
     else
       render('edit')
     end

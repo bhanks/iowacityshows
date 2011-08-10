@@ -27,34 +27,48 @@ class Event < ActiveRecord::Base
   
   
   def self.mill_events
-    venue_id = Venue.find_by_name("The Mill").id
-    Event.flush_events(venue_id)
-    @events = []
-    url = 'http://icmill.com/?page_id=5'
-    Nokogiri::HTML(open(url)).css("#posts .vevent").map do |vevent|
-     scratch = Event.new
-     scratch.begins_at = DateTime.parse(vevent.css(".dtstart").at("./@title").to_s)
-     scratch.scraped_name = vevent.css(".gigpress-artist").at("./text()").text.gsub(/&amp;/,"&").strip
-     scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")     
-     scratch.description = vevent.css(".description .gigpress-info-item").first.inner_html.gsub(/<br>/,".").gsub(/<\/?[^>]*>/, "")
-     price_text = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Admission')]/text()").to_s.strip
-     scratch.price = self.price_helper(price_text)
-     scratch.scraped_age = vevent.at(".//span[@class='gigpress-info-item' and contains(span, 'Age restrictions')]/text()").to_s.strip
-     scratch.url = url
-     permanent = Event.find_by_marker(scratch.marker)
-     if(permanent.nil?)
-       #If no event with this marker exists, go ahead and save everything.
-       scratch.save
-       @events << scratch
-     else
-       unless [:scraped_name, :scraped_age, :begins_at].all? {|a| scratch.send(a) == permanent.send(a)}
-         permanent.confirmed = 0
-         permanent.save
-         @events << permanent
+    venue = Venue.find_by_name("The Mill")
+    Event.flush_events(venue.id)
+    @events = Event.gigpress_rss_scraper(venue)
+  end
+  
+  def self.gigpress_rss_scraper(venue)
+    url = venue.event_list_url
+    feed = Nokogiri::XML(open(url))
+    events = []
+    feed.xpath("//item").map do |item|
+      scratch = self.new
+      #scratch.begins_at = DateTime.parse(item.xpath("pubDate").text)
+      scratch.scraped_description = item.xpath('description').to_s
+      info = Nokogiri::HTML(item.xpath('description').to_s)
+      scratch.scraped_name = self.xml_wrap(info, 'Artist')
+      scratch.description = self.xml_wrap(info, 'Notes')
+      date = self.xml_wrap(info, 'Date')
+      time = self.xml_wrap(info, 'Time')
+      scratch.begins_at = DateTime.parse("#{date} #{time}")
+      scratch.price = self.price_helper(self.xml_wrap(info, "Admission"))
+      scratch.scraped_age = self.xml_wrap(info, 'Age restrictions')
+      scratch.marker = item.xpath('guid').text
+      scratch.url = item.xpath('link').text
+      scratch.venue_id = venue.id
+      scratch.confirmed = 0
+      permanent = venue.events.find_by_marker(scratch.marker)
+      if(permanent.nil?)
+         #If no event with this marker exists, go ahead and save everything.
+         p "Saving scratch"
+         scratch.save
+         events << scratch
+       else
+         if (scratch.scraped_description != permanent.scraped_description)
+           permanent.confirmed = 0
+           permanent.save
+           p "Unconfirming Permanent."
+           events << permanent
+         end
        end
-     end
+      
     end
-    @events
+    events
   end
   
   def self.gabes_events
@@ -205,6 +219,7 @@ class Event < ActiveRecord::Base
     event
   end
     
+
   
   def self.flush_events(venue_id)
     events = Event.by_venue(venue_id).past
@@ -231,6 +246,13 @@ class Event < ActiveRecord::Base
     price
   end
 
+  #Helper method for gigpress feeds
+  def self.xml_wrap(item, text)
+    wrapper = item.xpath(".//li/strong[text()='#{text}:']/..")
+    wrapper.xpath(".//strong[text()='#{text}:']").remove
+    wrapper.text.strip
+  end
+  
   def name
     self[:name] ||= self[:scraped_name]
   end

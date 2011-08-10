@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110808190705) do
+ActiveRecord::Schema.define(:version => 20110809183024) do
 
   create_table "admins", :force => true do |t|
     t.string "username"
@@ -46,6 +46,7 @@ ActiveRecord::Schema.define(:version => 20110808190705) do
     t.string   "marker"
     t.string   "url"
     t.string   "scraped_age"
+    t.text     "scraped_description"
   end
 
   create_table "venues", :force => true do |t|
