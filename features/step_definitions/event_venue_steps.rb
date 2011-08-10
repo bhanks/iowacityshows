@@ -26,15 +26,4 @@ Then /^the event should remain unconfirmed$/ do
 end
 
 
-#####
-Given /^there is an event with the scraped name 'Scraped' that has no modified name$/ do
-  pending # express the regexp above with the code you wish you had
-end
 
-When /^I look at the name for that event$/ do
-  pending # express the regexp above with the code you wish you had
-end
-
-Then /^I should see the scraped name$/ do
-  pending # express the regexp above with the code you wish you had
-end
