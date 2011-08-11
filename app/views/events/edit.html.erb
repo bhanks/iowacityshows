@@ -35,10 +35,13 @@
 					<%= f.datetime_select(:begins_at) %>
 				</td>
 			<tr>
+			<% f.fields_for :prices do |price_form| %>
 			<tr>
-				<th>Price</th>
-				<td><%= f.text_field(:price)%></td>
+				<th>Price/Description</th>
+				<td><%= price_form.text_field(:amount)%><%= price_form.text_field(:description)%></td>
+				
 			</tr>
+			<% end %>
 			<tr>
 				<th>Venue</th>
 				<td><%= f.collection_select(:venue_id, Venue.all, :id, :display_name)%></td>

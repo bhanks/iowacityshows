@@ -2,6 +2,7 @@ require 'open-uri'
 class Event < ActiveRecord::Base
   belongs_to :venue
   has_many :prices, :dependent => :destroy
+  accepts_nested_attributes_for :prices 
   
   scope :by_venue, lambda{ |venue_id|
     where("events.venue_id = ?", venue_id)
@@ -73,13 +74,14 @@ class Event < ActiveRecord::Base
          scratch.save!
          events << scratch
        else
+         
          if (scratch.scraped_description != permanent.scraped_description)
-           scratch.destroy
            permanent.confirmed = 0
            permanent.save!
            p "Unconfirming Permanent."
            events << permanent
          end
+         scratch.destroy
        end
       
     end
@@ -88,19 +90,19 @@ class Event < ActiveRecord::Base
   
   
   def self.yacht_club_events
-    venue_id = Venue.find_by_name("The Yacht Club").id
-    Event.flush_events(venue_id)
+    venue = Venue.find_by_name("The Yacht Club")
+    venue.flush_events
     @events = []
     url = 'http://www.iowacityyachtclub.org/calendar.html'
     
     Nokogiri::HTML(open(url)).css(".entry").map do |vevent|
-      scratch = self.new
+      scratch = self.create!
       scratch.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
       scratch.scraped_name = vevent.css("a").text
       scratch.description = vevent.css("p").inner_html
       price = vevent.css(".price").inner_html
-      scratch.price = self.price_helper(price)
-      scratch.venue_id = venue_id
+      self.price_helper(price, scratch.id)
+      scratch.venue_id = venue.id
       scratch.confirmed = 0
       scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")
       scratch.url = url
@@ -115,6 +117,7 @@ class Event < ActiveRecord::Base
           permanent.save
           @events << permanent
         end
+        scratch.destroy
       end
     end
     @events
@@ -141,10 +144,10 @@ class Event < ActiveRecord::Base
   
   
   def self.englert_event_parser(vevent, venue_id, url)
-    scratch = self.new
+    scratch = self.create!
     scratch.scraped_name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
     price_text = vevent.css("font")[0].inner_html.to_s
-    scratch.price = self.price_helper(price_text)
+    self.price_helper(price_text, scratch.id)
     scratch.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
     scratch.scraped_age = "All Ages"
     scratch.venue_id = venue_id
@@ -162,6 +165,7 @@ class Event < ActiveRecord::Base
         permanent.save
         event = permanent
       end
+      scratch.destroy
     end
     event
   end
@@ -186,7 +190,7 @@ class Event < ActiveRecord::Base
     prices = []
     price.each do |p|
       p "Creating price #{p} for Event #{event_id}"
-      prices << Price.create(:amount=>p,:event_id=>event_id)
+      prices << Price.create!(:amount=>p,:event_id=>event_id)
     end
     prices
   end
