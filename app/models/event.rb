@@ -2,7 +2,7 @@ require 'open-uri'
 class Event < ActiveRecord::Base
   belongs_to :venue
   has_many :prices, :dependent => :destroy
-  accepts_nested_attributes_for :prices 
+  accepts_nested_attributes_for :prices, :allow_destroy => true, :reject_if => lambda {|a| a[:amount].blank? }
   
   scope :by_venue, lambda{ |venue_id|
     where("events.venue_id = ?", venue_id)

@@ -1,0 +1,45 @@
+.confirm
+{
+	width:90%;
+	margin:25px auto;
+	padding: 0px 25px;
+	border:1px solid black;
+}
+
+.confirm iframe
+{
+	width:90%;
+	height:500px;
+	margin:50px auto auto;
+}
+
+.confirm label.prime
+{
+	font-weight:bold;
+	float:left;
+	margin-bottom:8px;
+}
+
+.confirm input
+{
+	/*clear:both;*/
+}
+
+.confirm .leftcol
+{
+	float: left;
+	width: 65%;
+}
+
+.leftcol div
+{
+	margin:.5em 0em;
+	float:left;
+	width:100%;
+}
+
+#description textarea, label
+{
+
+	width:100%;
+}

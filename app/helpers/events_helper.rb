@@ -22,18 +22,12 @@ module EventsHelper
     str
   end
   
-  def price_render(pstr)
-    price_arr = pstr.split(",")
-    unless(price_arr.first.nil?)
-		  if( price_arr.first.casecmp("free") == 0)
-  			price = pstr
-  		else
-  			price = price_arr.map{|a| a.insert(0,'$')}.join(" / ")
-  		end
-  	else
-  	  price = ''
-  	end
-		price
+  def short_price(prices)
+    arr = []
+    prices.each do |price|
+      arr << price.amount
+    end
+    price = arr.join(" / ")
   end
   
   

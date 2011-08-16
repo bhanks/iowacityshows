@@ -1,6 +1,8 @@
 Onesheet::Application.routes.draw do
 
   
+  resources :posts
+
   root :to => "events#week"
   
   resources :venues do
@@ -29,6 +31,9 @@ Onesheet::Application.routes.draw do
       get :scrape
       get :week
       get :unconfirmed
+    end
+    member do
+      get :confirm
     end
   end
   

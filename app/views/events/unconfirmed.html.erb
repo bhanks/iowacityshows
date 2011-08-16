@@ -7,7 +7,7 @@
 	<tr>
 		<td class='name'><%= event.scraped_name %></td>
 		<td class='venue'><%= event.venue.name %></td>
-		<td class='action'><%= link_to "Confirm", edit_event_path(event.id) %></td>
+		<td class='action'><%= link_to "Confirm", confirm_event_path(event.id) %></td>
 	</tr>
 	
 <% end %>
