@@ -13,7 +13,7 @@ class Event < ActiveRecord::Base
   }
   
   scope :week, lambda{
-    where("events.begins_at >= ? and events.begins_at <= ? ", Date.today, Event.next_sunday+1 )
+    where("events.begins_at >= ? and events.begins_at <= ? ", Date.today, Date.today+7 )
   }
   
   scope :past, lambda{
@@ -41,17 +41,17 @@ class Event < ActiveRecord::Base
     @events = Event.gigpress_rss_scraper(venue)
   end
   
-  def self.blue_moose_events
+  def self.blue_moose_event_factory(items)
     venue = Venue.find_by_name("Blue Moose Taphouse")
     venue.flush_events
-    @events = Event.gigpress_rss_scraper(venue)
+    items = venue.posts.examined
+    @events = Event.gigpress_rss_scraper(venue, items)
   end
   
-  def self.gigpress_rss_scraper(venue)
-    url = venue.event_list_url
-    feed = Nokogiri::XML(open(url))
+  def self.gigpress_rss_scraper(venue, items)
     events = []
-    feed.xpath("//item").map do |item|
+    items.map do |item|
+      block = item.block
       scratch = self.create!
       #scratch.begins_at = DateTime.parse(item.xpath("pubDate").text)
       scratch.scraped_description = item.xpath('description').to_s
@@ -67,25 +67,13 @@ class Event < ActiveRecord::Base
       scratch.url = item.xpath('link').text
       scratch.venue_id = venue.id
       scratch.confirmed = 0
-      permanent = venue.events.find_by_marker(scratch.marker)
-      if(permanent.nil?)
-         #If no event with this marker exists, go ahead and save everything.
-         p "Saving scratch"
-         scratch.save!
-         events << scratch
-       else
-         
-         if (scratch.scraped_description != permanent.scraped_description)
-           permanent.confirmed = 0
-           permanent.save!
-           p "Unconfirming Permanent."
-           events << permanent
-         end
-         scratch.destroy
-       end
+
       
     end
     events
+  end
+  
+  def self.gigpress_parser(items)
   end
   
   

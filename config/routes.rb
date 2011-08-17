@@ -1,12 +1,21 @@
 Onesheet::Application.routes.draw do
 
   
-  resources :posts
+  resources :posts do
+    collection do
+      get :received
+    end
+    
+    member do
+      get :examine
+    end
+  end
+    
 
   root :to => "events#week"
   
   resources :venues do
-    #collection actions should be applied to all records
+    #collection actions apply to all records
     collection do
       
     end

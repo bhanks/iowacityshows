@@ -1,0 +1,11 @@
+<h1>Examining Post</h1>
+<div style="width:60%; margin:auto">
+<%= form_for @post do |p| %>
+	<%= label :event_count, "Event Count:"%> <%= p.text_field(:event_count)%>
+<% end %>
+<h2>Post Block:</h2>
+<p style="font-size:12px"><%= raw @post.block %></p>
+
+
+
+</div>

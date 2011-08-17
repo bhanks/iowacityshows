@@ -68,6 +68,18 @@ class PostsController < ApplicationController
       end
     end
   end
+  
+  def received
+    @posts = Post.received
+  end
+  
+  def examine
+    @post = Post.find(params[:id])
+  end
+
+  def start_factory
+    render('received')
+  end
 
   # DELETE /posts/1
   # DELETE /posts/1.xml
