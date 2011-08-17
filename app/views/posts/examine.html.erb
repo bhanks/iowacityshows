@@ -1,7 +1,9 @@
 <h1>Examining Post</h1>
 <div style="width:60%; margin:auto">
-<%= form_for @post do |p| %>
+<%= form_for @post, :url => start_factory_post_path do |p| %>
 	<%= label :event_count, "Event Count:"%> <%= p.text_field(:event_count)%>
+
+<%= submit_tag("Start event factory")%>
 <% end %>
 <h2>Post Block:</h2>
 <p style="font-size:12px"><%= raw @post.block %></p>

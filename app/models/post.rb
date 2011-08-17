@@ -26,11 +26,17 @@ class Post < ActiveRecord::Base
     end
   end
   
-  def self.mill_posts
-    venue = Venue.find_by_name("The Mill")
-    @posts = Post.gigpress_rss_scraper(venue)
+  def self.collect
+    venues = Venue.all
+    venues.each {|venue|
+      venue.class.gather
+    }
   end
-  
+  class RssBased
+    def self.gather
+      @posts = Post.gigpress_rss_scraper(venue)
+    end
+  end
   def self.gabes_posts
     venue = Venue.find_by_name("Gabe's")
     @posts = Post.gigpress_rss_scraper(venue)

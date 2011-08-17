@@ -8,6 +8,7 @@ Onesheet::Application.routes.draw do
     
     member do
       get :examine
+      post :start_factory
     end
   end
     

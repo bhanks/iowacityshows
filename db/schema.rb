@@ -12,11 +12,6 @@
 
 ActiveRecord::Schema.define(:version => 20110817145407) do
 
-  create_table "admins", :force => true do |t|
-    t.string "username"
-    t.string "password"
-  end
-
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
     t.integer  "attempts",   :default => 0
