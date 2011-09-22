@@ -1,5 +1,7 @@
 require 'open-uri'
 class Event < ActiveRecord::Base
+  ActiveRecord::Base.inheritance_column = "activerecordtype" 
+  
   belongs_to :venue
   has_many :prices, :dependent => :destroy
   accepts_nested_attributes_for :prices, :allow_destroy => true, :reject_if => lambda {|a| a[:amount].blank? }
@@ -29,6 +31,38 @@ class Event < ActiveRecord::Base
   }
   
   
+
+  def self.start_production(sym)
+    self.const_get(sym).factory
+      
+  end
+  
+  def RssBased
+    def self.factory
+      events = []
+      items.map do |item|
+        block = item.block
+        scratch = Event.create!
+        scratch.scraped_description = item.xpath('description').to_s
+        info = Nokogiri::HTML(item.xpath('description').to_s)
+        scratch.scraped_name = Event.xml_wrap(info, 'Artist')
+        scratch.description = Event.xml_wrap(info, 'Notes')
+        date = Event.xml_wrap(info, 'Date')
+        time = Event.xml_wrap(info, 'Time')
+        scratch.begins_at = DateTime.parse("#{date} #{time}")
+        Event.price_helper(Event.xml_wrap(info, "Admission"),scratch.id )
+        scratch.scraped_age = Event.xml_wrap(info, 'Age restrictions')
+        scratch.marker = item.xpath('guid').text
+        scratch.url = item.xpath('link').text
+        scratch.venue_id = venue.id
+        scratch.confirmed = 0
+
+
+      end
+      events
+    end
+  end
+
   def self.mill_events
     venue = Venue.find_by_name("The Mill")
     venue.flush_events

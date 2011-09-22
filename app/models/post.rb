@@ -1,5 +1,6 @@
 require 'open-uri'
 class Post < ActiveRecord::Base
+  ActiveRecord::Base.inheritance_column = "activerecordtype" 
   
   belongs_to :venue
   has_many :events
@@ -17,6 +18,8 @@ class Post < ActiveRecord::Base
     state :examined
     state :altered
     
+    after_transition :on => :received, :do => :send_to_factory
+    
     event :alert do
       transition :to => :altered, :from => [:examined]
     end
@@ -26,25 +29,66 @@ class Post < ActiveRecord::Base
     end
   end
   
-  def self.collect
+  def self.collect_posts
     venues = Venue.all
     venues.each {|venue|
-      venue.class.gather
+      Post.const_get(venue.type.to_sym).gather(venue)
     }
   end
+  
+  def send_to_factory
+    Event.start_production(self.venue.type.to_sym)
+  end
+  
   class RssBased
-    def self.gather
+    def self.gather(venue)
       @posts = Post.gigpress_rss_scraper(venue)
     end
   end
-  def self.gabes_posts
-    venue = Venue.find_by_name("Gabe's")
-    @posts = Post.gigpress_rss_scraper(venue)
+
+  
+  class YachtClub
+    def self.gather(venue)
+      @posts = []
+      url = 'http://www.iowacityyachtclub.org/calendar.html'
+    
+      Nokogiri::HTML(open(url)).css(".entry").map do |vevent|
+        scratch = Post.create!
+        #These fields necessary to parse in order to create a sufficient marker
+        begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
+        scraped_name = vevent.css("a").text
+        scratch.venue_id = venue.id
+        scratch.block = vevent.inner_html
+        scratch.marker = [scraped_name, begins_at].join(";")
+        scratch.url = url
+        permanent = venue.posts.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
+    end
+    #End class YachtClub
   end
   
-  def self.blue_moose_posts
-    venue = Venue.find_by_name("Blue Moose Taphouse")
-    @posts = Post.gigpress_rss_scraper(venue)
+  class Englert
+    def self.gather(venue)
+      @posts = []
+      
+      Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
+        loc = node.attributes["href"].value
+        vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+        @posts << Post.englert_post_parser(vevent, venue, loc)
+      end
+
+      Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
+        loc = node.attributes["href"].value
+        vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+        @posts << Post.englert_post_parser(vevent, venue, loc)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
+    end
+    #End class Englert
   end
   
   def self.gigpress_rss_scraper(venue)
@@ -64,48 +108,6 @@ class Post < ActiveRecord::Base
     posts
   end
   
-  
-  def self.yacht_club_posts
-    venue = Venue.find_by_name("The Yacht Club")
-    @posts = []
-    url = 'http://www.iowacityyachtclub.org/calendar.html'
-    
-    Nokogiri::HTML(open(url)).css(".entry").map do |vevent|
-      scratch = self.create!
-      #These fields necessary to parse in order to create a sufficient marker
-      begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
-      scraped_name = vevent.css("a").text
-      scratch.venue_id = venue.id
-      scratch.block = vevent.inner_html
-      scratch.marker = [scraped_name, begins_at].join(";")
-      scratch.url = url
-      permanent = venue.posts.find_by_marker(scratch.marker)
-      @posts << Post.comparison(scratch, permanent)
-    end
-    @posts.reject!{|post| post.nil? }
-    @posts
-  end
-  
-  def self.englert_posts
-    venue = Venue.find_by_name("The Englert")
-    venue.flush_events
-    @posts = []
-    Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
-      loc = node.attributes["href"].value
-      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-      @posts << Post.englert_post_parser(vevent, venue, loc)
-    end
-
-    Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
-      loc = node.attributes["href"].value
-      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-      @posts << Post.englert_post_parser(vevent, venue, loc)
-    end
-    @posts.reject!{|post| post.nil? }
-    @posts
-  end
-  
-  
   def self.englert_post_parser(vevent, venue, url)
     scratch = self.create!
     scratch.block = vevent.inner_html
@@ -119,7 +121,7 @@ class Post < ActiveRecord::Base
   def self.comparison(scratch, permanent)
     if(permanent.nil?)
       #If no event with this marker exists, go ahead and save everything.
-      p "No event exists at marker #{scratch.marker}"
+      p "No post exists at marker #{scratch.marker}"
       scratch.save!
       post = scratch
     else
@@ -134,4 +136,6 @@ class Post < ActiveRecord::Base
     end
     post
   end
+  
+  #End class Post
 end
