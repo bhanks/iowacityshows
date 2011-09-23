@@ -32,23 +32,25 @@ class Event < ActiveRecord::Base
   
   
 
-  def self.start_production(sym)
-    self.const_get(sym).factory
+  def self.start_production(sym, post)
+    self.const_get(sym).factory(post, post.venue)
       
   end
   
-  def RssBased
-    def self.factory
+  class RssBased
+    def self.factory(post, venue)
       events = []
+      items = [post]
       items.map do |item|
-        block = item.block
+        block = Nokogiri::HTML::Document.parse(item.block)
         scratch = Event.create!
-        scratch.scraped_description = item.xpath('description').to_s
-        info = Nokogiri::HTML(item.xpath('description').to_s)
+        scratch.scraped_description = block.xpath('description').to_s
+        info = Nokogiri::HTML(block.xpath('description').to_s)
         scratch.scraped_name = Event.xml_wrap(info, 'Artist')
         scratch.description = Event.xml_wrap(info, 'Notes')
         date = Event.xml_wrap(info, 'Date')
         time = Event.xml_wrap(info, 'Time')
+        p date + time
         scratch.begins_at = DateTime.parse("#{date} #{time}")
         Event.price_helper(Event.xml_wrap(info, "Admission"),scratch.id )
         scratch.scraped_age = Event.xml_wrap(info, 'Age restrictions')

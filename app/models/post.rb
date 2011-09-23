@@ -32,12 +32,12 @@ class Post < ActiveRecord::Base
   def self.collect_posts
     venues = Venue.all
     venues.each {|venue|
-      Post.const_get(venue.type.to_sym).gather(venue)
+      Post.const_get(venue.parse_type.to_sym).gather(venue)
     }
   end
   
   def send_to_factory
-    Event.start_production(self.venue.type.to_sym)
+    Event.start_production(self.venue.parse_type.to_sym, self)
   end
   
   class RssBased

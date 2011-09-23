@@ -5,4 +5,7 @@ class Venue < ActiveRecord::Base
   def flush_events
     self.events.past.destroy_all
   end
+  
+
+  
 end
