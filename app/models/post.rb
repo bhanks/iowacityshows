@@ -18,7 +18,11 @@ class Post < ActiveRecord::Base
     state :examined
     state :altered
     
-    after_transition :on => :received, :do => :send_to_factory
+    after_transition :on => :examined, :do => :send_to_factory
+    
+    event :reexamine do
+      transition :to => :examined, :from => [:altered]
+    end
     
     event :alert do
       transition :to => :altered, :from => [:examined]
@@ -91,6 +95,11 @@ class Post < ActiveRecord::Base
     #End class Englert
   end
   
+  class BlueMoose
+    def self.gather(venue)
+    end
+  end
+  
   def self.gigpress_rss_scraper(venue)
     url = venue.event_list_url
     feed = Nokogiri::XML(open(url))
@@ -115,6 +124,7 @@ class Post < ActiveRecord::Base
     scratch.marker = url
     scratch.url = "http://englert.org/#{url}"
     permanent = Post.find_by_marker(scratch.marker)
+    
     Post.comparison(scratch, permanent)
   end
   
@@ -126,8 +136,9 @@ class Post < ActiveRecord::Base
       post = scratch
     else
       if scratch.block != permanent.block
+        p scratch.block
         # Mark related events unconfirmed; method not written yet
-        p "New block differs from old block."
+        p "New block differs from old block. #{scratch.venue.name}"
         permanent.alert
         permanent.save!
         post = permanent
