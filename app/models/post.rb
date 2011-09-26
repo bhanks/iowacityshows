@@ -124,9 +124,10 @@ class Post < ActiveRecord::Base
     scratch.marker = url
     scratch.url = "http://englert.org/#{url}"
     permanent = Post.find_by_marker(scratch.marker)
-    
     Post.comparison(scratch, permanent)
   end
+  
+
   
   def self.comparison(scratch, permanent)
     if(permanent.nil?)
