@@ -8,7 +8,7 @@ Feature: Scraping the same post only updatess when content_interior block change
 
 #START:scenario
 	Scenario: Update only on content change
-		Given I have a page to scrape twice
-		When I pull the block out of those pages
-		Then I should have the same block
+		Given I scrape the englert events
+		When I scrape them again
+		Then I should have no new events
 #END:scenario

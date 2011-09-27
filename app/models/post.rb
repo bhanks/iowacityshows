@@ -2,6 +2,16 @@ require 'open-uri'
 class Post < ActiveRecord::Base
   ActiveRecord::Base.inheritance_column = "activerecordtype" 
   
+  #  Post class:  Posts represent the state of Event data as it exists on the Venues' websites.
+  #  A Post can have three states:
+  #     -received: represents a post which has been been coarse-scraped.  Received posts haven't been examined by an admin.
+  #     -examined: represents posts which have been examined for veracity and event count.  After a post is examined, the Post class
+  #                should start the relevant Event factory to begin a coarse-scrape for the creation of one or many events.
+  #     -altered: represents a post which has been previously examined, however some content on the related venue's site has been changed.
+  #               Events related to altered posts need to be marked unconfirmed until such time as they have been examined again to ensure
+  #               data veracity.
+  
+  
   belongs_to :venue
   has_many :events
   
@@ -41,12 +51,44 @@ class Post < ActiveRecord::Base
   end
   
   def send_to_factory
-    Event.start_production(self.venue.parse_type.to_sym, self)
+    Event.start_production(self)
   end
   
-  class RssBased
+  class WordPress
     def self.gather(venue)
-      @posts = Post.gigpress_rss_scraper(venue)
+      url = venue.event_list_url
+      feed = Nokogiri::XML(open(url))
+      @posts = []
+      feed.xpath("//item").map do |item|
+        scratch = Post.create!
+        scratch.block = item.xpath('description').text
+        scratch.marker = scratch.url = item.xpath('link').text
+        scratch.venue_id = venue.id
+        permanent = venue.posts.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
+    end
+  end
+  
+  class GigPress
+    def self.gather(venue)
+      #@posts = Post.gigpress_rss_scraper(venue)
+      url = venue.event_list_url
+      feed = Nokogiri::XML(open(url))
+      @posts = []
+      feed.xpath("//item").map do |item|
+        scratch = Post.create!
+        scratch.block = item.text
+        scratch.marker = item.xpath('guid').text
+        scratch.url = item.xpath('link').text
+        scratch.venue_id = venue.id
+        permanent = venue.posts.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
     end
   end
 
@@ -81,13 +123,25 @@ class Post < ActiveRecord::Base
       Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
         loc = node.attributes["href"].value
         vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-        @posts << Post.englert_post_parser(vevent, venue, loc)
+        scratch = Post.create!
+        scratch.block = vevent.css("#content_interior").text
+        scratch.venue_id = venue.id
+        scratch.marker = url
+        scratch.url = "http://englert.org/#{url}"
+        permanent = Post.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
       end
 
       Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
         loc = node.attributes["href"].value
         vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-        @posts << Post.englert_post_parser(vevent, venue, loc)
+        scratch = Post.create!
+        scratch.block = vevent.css("#content_interior").text
+        scratch.venue_id = venue.id
+        scratch.marker = url
+        scratch.url = "http://englert.org/#{url}"
+        permanent = Post.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
       end
       @posts.reject!{|post| post.nil? }
       @posts
@@ -95,36 +149,21 @@ class Post < ActiveRecord::Base
     #End class Englert
   end
   
-  class BlueMoose
+  class TicketFly
     def self.gather(venue)
+      @posts = []
+      Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
+        scratch = Post.create!
+        scratch.venue_id = venue.id
+        scratch.block = node.xpath("entry[@key='lastUpdated']").text+"  "+node.xpath("entry[@key='name']").text
+        scratch.marker = node.xpath("entry[@key='id']").text
+        scratch.url = "http://www.ticketfly.com/api/events/upcoming.xml?eventId=#{scratch.marker}"
+        permanent = Post.find_by_marker(scratch.marker)
+        @posts << Post.comparison(scratch, permanent)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
     end
-  end
-  
-  def self.gigpress_rss_scraper(venue)
-    url = venue.event_list_url
-    feed = Nokogiri::XML(open(url))
-    posts = []
-    feed.xpath("//item").map do |item|
-      scratch = self.create!
-      scratch.block = item.inner_html
-      scratch.marker = item.xpath('guid').text
-      scratch.url = item.xpath('link').text
-      scratch.venue_id = venue.id
-      permanent = venue.posts.find_by_marker(scratch.marker)
-      posts << Post.comparison(scratch, permanent)
-    end
-    posts.reject!{|post| post.nil? }
-    posts
-  end
-  
-  def self.englert_post_parser(vevent, venue, url)
-    scratch = self.create!
-    scratch.block = vevent.inner_html
-    scratch.venue_id = venue.id
-    scratch.marker = url
-    scratch.url = "http://englert.org/#{url}"
-    permanent = Post.find_by_marker(scratch.marker)
-    Post.comparison(scratch, permanent)
   end
   
 
@@ -137,9 +176,8 @@ class Post < ActiveRecord::Base
       post = scratch
     else
       if scratch.block != permanent.block
-        p scratch.block
         # Mark related events unconfirmed; method not written yet
-        p "New block differs from old block. #{scratch.venue.name}"
+        p "New block differs from old block."
         permanent.alert
         permanent.save!
         post = permanent

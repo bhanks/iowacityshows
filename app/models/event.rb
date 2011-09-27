@@ -32,13 +32,14 @@ class Event < ActiveRecord::Base
   
   
 
-  def self.start_production(sym, post)
-    self.const_get(sym).factory(post, post.venue)
+  def self.start_production(post)
+    self.const_get(post.venue.parse_tye).factory(post)
       
   end
   
   class RssBased
     def self.factory(post, venue)
+      venue = post.venue
       events = []
       items = [post]
       items.map do |item|
