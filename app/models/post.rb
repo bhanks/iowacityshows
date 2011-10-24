@@ -28,7 +28,7 @@ class Post < ActiveRecord::Base
     state :examined
     state :altered
     
-    after_transition :on => :examined, :do => :send_to_factory
+    after_transition :on => :examine, :do => :send_to_factory
     
     event :reexamine do
       transition :to => :examined, :from => [:altered]
@@ -45,17 +45,23 @@ class Post < ActiveRecord::Base
   
   def self.collect_posts
     venues = Venue.all
+    unseen = 0
     venues.each {|venue|
-      Post.const_get(venue.parse_type.to_sym).gather(venue)
+      posts = Post.const_get(venue.parse_type.to_sym).gather(venue)
+      unseen += (posts.nil?) ? 0 : posts.count
     }
+    if(unseen > 0)
+      Event.collect_events
+    end
   end
   
-  def send_to_factory
-    Event.start_production(self)
+  def join_to_event
+    #Event.start_production(self)
   end
   
   class WordPress
     def self.gather(venue)
+=begin
       url = venue.event_list_url
       feed = Nokogiri::XML(open(url))
       @posts = []
@@ -69,11 +75,13 @@ class Post < ActiveRecord::Base
       end
       @posts.reject!{|post| post.nil? }
       @posts
+=end
     end
   end
   
   class GigPress
     def self.gather(venue)
+=begin
       #@posts = Post.gigpress_rss_scraper(venue)
       url = venue.event_list_url
       feed = Nokogiri::XML(open(url))
@@ -89,12 +97,14 @@ class Post < ActiveRecord::Base
       end
       @posts.reject!{|post| post.nil? }
       @posts
+=end
     end
   end
 
   
   class YachtClub
     def self.gather(venue)
+=begin
       @posts = []
       url = 'http://www.iowacityyachtclub.org/calendar.html'
     
@@ -112,6 +122,7 @@ class Post < ActiveRecord::Base
       end
       @posts.reject!{|post| post.nil? }
       @posts
+=end
     end
     #End class YachtClub
   end
@@ -126,8 +137,8 @@ class Post < ActiveRecord::Base
         scratch = Post.create!
         scratch.block = vevent.css("#content_interior").text
         scratch.venue_id = venue.id
-        scratch.marker = url
-        scratch.url = "http://englert.org/#{url}"
+        scratch.marker = loc
+        scratch.url = "http://englert.org/#{loc}"
         permanent = Post.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
@@ -138,8 +149,8 @@ class Post < ActiveRecord::Base
         scratch = Post.create!
         scratch.block = vevent.css("#content_interior").text
         scratch.venue_id = venue.id
-        scratch.marker = url
-        scratch.url = "http://englert.org/#{url}"
+        scratch.marker = loc
+        scratch.url = "http://englert.org/#{loc}"
         permanent = Post.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
@@ -151,6 +162,7 @@ class Post < ActiveRecord::Base
   
   class TicketFly
     def self.gather(venue)
+=begin
       @posts = []
       Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
         scratch = Post.create!
@@ -163,6 +175,7 @@ class Post < ActiveRecord::Base
       end
       @posts.reject!{|post| post.nil? }
       @posts
+=end
     end
   end
   

@@ -31,13 +31,16 @@ class Event < ActiveRecord::Base
   }
   
   
-
-  def self.start_production(post)
-    self.const_get(post.venue.parse_tye).factory(post)
-      
+  def self.collect_events
+=begin
+    venues = Venue.all
+    venues.each {|venue|
+      Event.const_get(venue.parse_type.to_sym).gather(venue)
+    }
+=end
   end
   
-  class RssBased
+  class GigPress
     def self.factory(post, venue)
       venue = post.venue
       events = []
