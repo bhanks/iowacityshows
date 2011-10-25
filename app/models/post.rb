@@ -128,34 +128,44 @@ class Post < ActiveRecord::Base
   end
   
   class Englert
+    
+    
     def self.gather(venue)
       @posts = []
       
       Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior1').css("a").map do |node| 
         loc = node.attributes["href"].value
-        vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-        scratch = Post.create!
-        scratch.block = vevent.css("#content_interior").text
-        scratch.venue_id = venue.id
-        scratch.marker = loc
-        scratch.url = "http://englert.org/#{loc}"
-        permanent = Post.find_by_marker(scratch.marker)
-        @posts << Post.comparison(scratch, permanent)
+        @posts << self.parser(loc, venue)
       end
 
       Nokogiri::HTML(open('http://www.englert.org/events.php?view=upcoming')).css('#block_interior2').css("a").map do |node| 
         loc = node.attributes["href"].value
-        vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
-        scratch = Post.create!
-        scratch.block = vevent.css("#content_interior").text
-        scratch.venue_id = venue.id
-        scratch.marker = loc
-        scratch.url = "http://englert.org/#{loc}"
-        permanent = Post.find_by_marker(scratch.marker)
-        @posts << Post.comparison(scratch, permanent)
+        @posts << self.parser(loc, venue)
       end
       @posts.reject!{|post| post.nil? }
       @posts
+    end
+    
+    def self.parser(loc, venue)
+      vevent = Nokogiri::HTML(open('http://www.englert.org/'+loc)).css("#content_interior")
+      scratch = Post.create!      
+      scratch.block = vevent.css("#content_interior").text
+      scratch.venue_id =  venue.id
+      scratch.marker = loc
+      scratch.url = "http://englert.org/#{loc}"
+      permanent = Post.find_by_marker(scratch.marker)
+      Post.comparison(scratch, permanent)
+      if(Event.find_by_marker(loc).nil?)
+        base_event = Event.create!
+        base_event.scraped_name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
+        base_event.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
+        base_event.scraped_age = "All Ages"
+        base_event.venue_id = venue.id
+        base_event.confirmed = 0
+        base_event.marker = loc
+        base_event.url = "http://englert.org/#{loc}"
+        base_event.save!
+      end
     end
     #End class Englert
   end
