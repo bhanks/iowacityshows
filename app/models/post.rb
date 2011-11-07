@@ -45,23 +45,16 @@ class Post < ActiveRecord::Base
   
   def self.collect_posts
     venues = Venue.all
-    unseen = 0
     venues.each {|venue|
       posts = Post.const_get(venue.parse_type.to_sym).gather(venue)
-      unseen += (posts.nil?) ? 0 : posts.count
     }
-    if(unseen > 0)
-      Event.collect_events
-    end
+
   end
   
-  def join_to_event
-    #Event.start_production(self)
-  end
   
   class WordPress
     def self.gather(venue)
-=begin
+
       url = venue.event_list_url
       feed = Nokogiri::XML(open(url))
       @posts = []
@@ -71,17 +64,18 @@ class Post < ActiveRecord::Base
         scratch.marker = scratch.url = item.xpath('link').text
         scratch.venue_id = venue.id
         permanent = venue.posts.find_by_marker(scratch.marker)
+        Event::WordPress.event_creator(item)
         @posts << Post.comparison(scratch, permanent)
       end
       @posts.reject!{|post| post.nil? }
       @posts
-=end
+
     end
   end
   
   class GigPress
     def self.gather(venue)
-=begin
+
       #@posts = Post.gigpress_rss_scraper(venue)
       url = venue.event_list_url
       feed = Nokogiri::XML(open(url))
@@ -92,22 +86,22 @@ class Post < ActiveRecord::Base
         scratch.marker = item.xpath('guid').text
         scratch.url = item.xpath('link').text
         scratch.venue_id = venue.id
+        Event::GigPress.event_creator(item, venue)
         permanent = venue.posts.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
       @posts.reject!{|post| post.nil? }
       @posts
-=end
+
     end
   end
 
   
   class YachtClub
     def self.gather(venue)
-=begin
+
       @posts = []
       url = 'http://www.iowacityyachtclub.org/calendar.html'
-    
       Nokogiri::HTML(open(url)).css(".entry").map do |vevent|
         scratch = Post.create!
         #These fields necessary to parse in order to create a sufficient marker
@@ -117,12 +111,12 @@ class Post < ActiveRecord::Base
         scratch.block = vevent.inner_html
         scratch.marker = [scraped_name, begins_at].join(";")
         scratch.url = url
+        Event::YachtClub.event_creator(vevent, venue, url)
         permanent = venue.posts.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
       @posts.reject!{|post| post.nil? }
       @posts
-=end
     end
     #End class YachtClub
   end
@@ -139,6 +133,7 @@ class Post < ActiveRecord::Base
         scratch.venue_id = venue.id
         scratch.marker = loc
         scratch.url = "http://englert.org/#{loc}"
+        Event::Englert.event_creator(vevent, scratch.venue_id, scratch.url)
         permanent = Post.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
@@ -151,6 +146,7 @@ class Post < ActiveRecord::Base
         scratch.venue_id = venue.id
         scratch.marker = loc
         scratch.url = "http://englert.org/#{loc}"
+        Event::Englert.event_creator(vevent, scratch.venue_id, scratch.url)
         permanent = Post.find_by_marker(scratch.marker)
         @posts << Post.comparison(scratch, permanent)
       end
