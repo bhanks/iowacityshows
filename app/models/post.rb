@@ -96,7 +96,7 @@ class Post < ActiveRecord::Base
     end
   end
 
-  
+=begin
   class YachtClub
     def self.gather(venue)
 
@@ -155,10 +155,10 @@ class Post < ActiveRecord::Base
     end
     #End class Englert
   end
-  
+=end
   class TicketFly
     def self.gather(venue)
-=begin
+
       @posts = []
       Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
         scratch = Post.create!
@@ -171,7 +171,7 @@ class Post < ActiveRecord::Base
       end
       @posts.reject!{|post| post.nil? }
       @posts
-=end
+
     end
   end
   

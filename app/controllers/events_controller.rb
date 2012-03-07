@@ -2,9 +2,9 @@
 class EventsController < ApplicationController
   def index
     if(@venue)
-      @events = @venue.events.confirmed.order("events.begins_at ASC")
+      @events = @venue.events.order("events.begins_at ASC")
     else
-      @events = Event.confirmed.order("events.begins_at ASC")
+      @events = Event.order("events.begins_at ASC")
     end
   end
 

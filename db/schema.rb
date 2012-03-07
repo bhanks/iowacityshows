@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110922185933) do
+ActiveRecord::Schema.define(:version => 20120307153731) do
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -42,6 +42,7 @@ ActiveRecord::Schema.define(:version => 20110922185933) do
     t.string   "scraped_age"
     t.text     "scraped_description"
     t.integer  "post_id"
+    t.string   "price"
   end
 
   create_table "posts", :force => true do |t|
@@ -54,14 +55,6 @@ ActiveRecord::Schema.define(:version => 20110922185933) do
     t.string   "marker"
     t.integer  "event_count"
     t.datetime "remove_on"
-  end
-
-  create_table "prices", :force => true do |t|
-    t.string   "amount"
-    t.string   "description"
-    t.integer  "event_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "venues", :force => true do |t|

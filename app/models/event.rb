@@ -30,7 +30,13 @@ class Event < ActiveRecord::Base
     where("events.confirmed = ?", 1)
   }
   
-  
+  def self.collect_events
+    venues = Venue.all
+    venues.each {|venue|
+      posts = Event.const_get(venue.parse_type.to_sym).gather(venue)
+    }
+
+  end
   
   class GigPress
     def self.event_creator(item, venue)
@@ -56,32 +62,11 @@ class Event < ActiveRecord::Base
     end
   end
 
-  class WordPress
-    def self.event_creator(block)
-      scratch = Event.create!
-      scratch.url = scratch.marker = item.xpath('link')
-      
-    end
-  end
+
   
-  class YachtClub
-    def self.event_creator(vevent, venue, url)
-      scratch = Event.create!
-      scratch.begins_at = DateTime.parse(vevent.css("h4").inner_html+" "+vevent.css("h2").inner_html)
-      scratch.scraped_name = vevent.css("a").text
-      scratch.description = vevent.css("p").inner_html
-      price = vevent.css(".price").inner_html
-      Event.price_helper(price, scratch.id)
-      scratch.venue_id = venue.id
-      scratch.confirmed = 0
-      scratch.marker = [scratch.scraped_name, scratch.begins_at].join(";")
-      scratch.url = url
-      permanent = Event.find_by_marker(scratch.marker)
-      Event.comparison(scratch,permanent)
-    end
-  end
+
   
-  
+=begin  
   class Englert
     def self.event_creator(vevent, venue_id, url)
       scratch = Event.create!
@@ -96,6 +81,29 @@ class Event < ActiveRecord::Base
       scratch.url = "http://englert.org/#{url}"
       permanent = Event.find_by_marker(scratch.marker)
       Event.comparison(scratch, permanent)
+
+    end
+  end
+=end
+  class TicketFly
+    def self.gather(venue)
+
+      @posts = []
+      Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
+        scratch = Event.create!
+        scratch.venue_id = venue.id
+        #scratch.block = node.xpath("entry[@key='lastUpdated']").text+"  "+node.xpath("entry[@key='name']").text
+        scratch.marker = node.xpath("entry[@key='id']").text
+        scratch.name = node.xpath("entry[@key='name']").text
+        scratch.description = node.xpath("entry[@key='headliners']/map/entry[@key='eventDescription']").text
+        scratch.age_restriction = node.xpath("entry[@key='ageLimit']").text
+        scratch.begins_at = DateTime.parse(node.xpath("entry[@key='startDate']").text)
+        scratch.url = "http://www.ticketfly.com/api/events/upcoming.xml?eventId=#{scratch.marker}"
+        permanent = Event.find_by_marker(scratch.marker)
+        @posts << Event.comparison(scratch, permanent)
+      end
+      @posts.reject!{|post| post.nil? }
+      @posts
 
     end
   end
