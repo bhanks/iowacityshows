@@ -3,8 +3,6 @@ class Event < ActiveRecord::Base
   ActiveRecord::Base.inheritance_column = "activerecordtype" 
   
   belongs_to :venue
-  has_many :prices, :dependent => :destroy
-  accepts_nested_attributes_for :prices, :allow_destroy => true, :reject_if => lambda {|a| a[:amount].blank? }
   
   scope :by_venue, lambda{ |venue_id|
     where("events.venue_id = ?", venue_id)
@@ -39,26 +37,26 @@ class Event < ActiveRecord::Base
   end
   
   class GigPress
-    def self.event_creator(item, venue)
-      block=item
-      scratch = Event.create!
-      scratch.scraped_description = block.xpath('description').to_s
-      info = Nokogiri::HTML(block.xpath('description').to_s)
-      scratch.scraped_name = Event.xml_wrap(info, 'Artist')
-      scratch.description = Event.xml_wrap(info, 'Notes')
-      date = Event.xml_wrap(info, 'Date')
-      time = Event.xml_wrap(info, 'Time')
-      p date + time
-      scratch.begins_at = DateTime.parse("#{date} #{time}")
-      Event.price_helper(Event.xml_wrap(info, "Admission"),scratch.id )
-      scratch.scraped_age = Event.xml_wrap(info, 'Age restrictions')
-      scratch.marker = item.xpath('guid').text
-      scratch.url = item.xpath('link').text
-      scratch.venue_id = venue.id
-      scratch.confirmed = 0
-      permanent = Event.find_by_marker(scratch.marker)
-      Event.comparison(scratch, permanent)
+    def self.gather(venue)
+      @events = []
+      Nokogiri::XML(open(venue.event_list_url)).xpath("//item").map do |item|
+        scratch = Event.create!
 
+        scratch.name =  item.xpath("title").text
+        scratch.description = Event.xml_wrap(item, 'Notes')
+        date = Event.xml_wrap(item, 'Date')
+        time = Event.xml_wrap(item, 'Time')
+        scratch.begins_at = DateTime.parse("#{date} #{time}")
+        scratch.price = Event.xml_wrap(item, 'Admission')
+        scratch.age_restriction = Event.xml_wrap(item, 'Age restrictions')
+        scratch.marker = item.xpath('guid').text
+        scratch.url = item.xpath('link').text
+        scratch.venue_id = venue.id
+        permanent = Event.find_by_marker(scratch.marker)
+        @events << Event.comparison(scratch, permanent)
+      end
+      @events.reject!{|event| event.nil? }
+      @events
     end
   end
 
@@ -88,22 +86,22 @@ class Event < ActiveRecord::Base
   class TicketFly
     def self.gather(venue)
 
-      @posts = []
+      @events = []
       Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
         scratch = Event.create!
         scratch.venue_id = venue.id
-        #scratch.block = node.xpath("entry[@key='lastUpdated']").text+"  "+node.xpath("entry[@key='name']").text
         scratch.marker = node.xpath("entry[@key='id']").text
         scratch.name = node.xpath("entry[@key='name']").text
         scratch.description = node.xpath("entry[@key='headliners']/map/entry[@key='eventDescription']").text
         scratch.age_restriction = node.xpath("entry[@key='ageLimit']").text
         scratch.begins_at = DateTime.parse(node.xpath("entry[@key='startDate']").text)
-        scratch.url = "http://www.ticketfly.com/api/events/upcoming.xml?eventId=#{scratch.marker}"
+        scratch.price = node.xpath("entry[@key='ticketPrice']").text
+        scratch.url = "http://www.ticketfly.com/event/#{scratch.marker}"
         permanent = Event.find_by_marker(scratch.marker)
-        @posts << Event.comparison(scratch, permanent)
+        @events << Event.comparison(scratch, permanent)
       end
-      @posts.reject!{|post| post.nil? }
-      @posts
+      @events.reject!{|event| event.nil? }
+      @events
 
     end
   end
@@ -135,7 +133,10 @@ class Event < ActiveRecord::Base
 
   #Helper method for gigpress feeds
   def self.xml_wrap(item, text)
-    wrapper = item.xpath(".//li/strong[text()='#{text}:']/..")
+    #might be multiple cdata nodes in description node
+    cdata = Nokogiri::XML(item.xpath("description").children.first.text)
+    #cdata.xpath(".//li/strong[text()='Time:']/..").children[1].text
+    wrapper = cdata.xpath(".//li/strong[text()='#{text}:']/..")
     wrapper.xpath(".//strong[text()='#{text}:']").remove
     wrapper.text.strip
   end

@@ -15,7 +15,7 @@
 	<% altswitch = false %>
 	<% @events.each do |event| %>
 		<% 
-		 	price = short_price(event.prices)
+		 	#price = short_price(event.prices)
 			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>
@@ -32,7 +32,8 @@
 						<%= (mixed)? event.venue.display_name : event_day(event.begins_at)%>
 					</li>
 					<li class='price date bullet'>
-						<%= (mixed)? price : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
+						<%= 
+						(mixed)? event.price : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
 					</li>
 					<li class='time bullet'>
 						<%= am_pm(event.begins_at) %>
@@ -47,7 +48,7 @@
 				<div class="details">
 					<ul>
 						<li class='event age'><%= event.age_restriction %></li>
-						<li class='price'><%= price %></li>
+						<li class='price'><%= event.price %></li>
 					</ul>
 				</div>
 				

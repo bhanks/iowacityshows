@@ -1,6 +1,6 @@
 class Venue < ActiveRecord::Base
-  has_many :posts 
-  has_many :events, :through => :posts
+
+  has_many :events
   
   def flush_events
     self.events.past.destroy_all

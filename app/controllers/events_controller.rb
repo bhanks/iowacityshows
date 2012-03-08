@@ -22,9 +22,9 @@ class EventsController < ApplicationController
 
   def week
     if(@venue)
-      @events = @venue.events.confirmed.week.order("events.begins_at ASC")
+      @events = @venue.events.week.order("events.begins_at ASC")
     else
-      @events = Event.confirmed.week.order("events.begins_at ASC")
+      @events = Event.week.order("events.begins_at ASC")
     end
     render('index')
   end

@@ -200,8 +200,9 @@ div.details ul li.price
 {
 	letter-spacing:1px;
 	font-size:1em;
-	padding-right: 2em;
+
 	margin-top:6em;
+	text-align:justify;
 }
 
 .individual ul
@@ -220,7 +221,7 @@ div.details ul li.price
 .individual ul li
 {
 	display:inline-block;
-	width:24%;
+	width:32%;
 	color:white;
 	font-size:1.3em;
 	line-height:1.5em;
@@ -279,6 +280,7 @@ table.unconfirmed td.name
 	.individual p
 	{
 		font-size: .8em;
+		padding: 0px 2em;
 	}
 	.individual ul li
 	{
