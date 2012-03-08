@@ -5,10 +5,11 @@
 	<h2><%= link_to( "@ #{@event.venue.name}", @event.venue.site_url) %></h2>
 
 		<ul>
-			<li><%= event_day_indiv(@event.begins_at) %></li>
+			<!--<li><%= event_day_indiv(@event.begins_at) %></li>-->
 			<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
-			<li><%=  %></li>
-			<li><%= @event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
+
+			<li><%= @event.price %></li>
+			<li><%= @event.age_restriction %></li>
 		</ul>
 
 	<p><%= strip_tags @event.description %></p>

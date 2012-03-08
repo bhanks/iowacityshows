@@ -1,0 +1,6 @@
+<h1>Received Posts</h1>
+<ul class="received">
+<% @posts.each do |post| %>
+	<li><%= post.venue.name %>: <%= post.created_at.strftime("%a, %b %e %H:%M ")%> <%= link_to "Examine", examine_post_path(post.id)%></li>
+<% end %>
+</ul>

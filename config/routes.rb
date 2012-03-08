@@ -1,10 +1,22 @@
 Onesheet::Application.routes.draw do
 
   
+  resources :posts do
+    collection do
+      get :received
+    end
+    
+    member do
+      get :examine
+      post :start_factory
+    end
+  end
+    
+
   root :to => "events#week"
   
   resources :venues do
-    #collection actions should be applied to all records
+    #collection actions apply to all records
     collection do
       
     end
@@ -28,6 +40,10 @@ Onesheet::Application.routes.draw do
       get :today
       get :scrape
       get :week
+      get :unconfirmed
+    end
+    member do
+      get :confirm
     end
   end
   

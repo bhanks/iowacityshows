@@ -3,6 +3,12 @@
 body
 {
 	font-family:Helvetica,Arial,sans;
+	/*width:60%;*/
+	margin:auto;
+}
+
+div.wrapper, div.individual
+{
 	width:60%;
 	margin:auto;
 }
@@ -194,8 +200,9 @@ div.details ul li.price
 {
 	letter-spacing:1px;
 	font-size:1em;
-	padding-right: 2em;
+
 	margin-top:6em;
+	text-align:justify;
 }
 
 .individual ul
@@ -214,7 +221,7 @@ div.details ul li.price
 .individual ul li
 {
 	display:inline-block;
-	width:24%;
+	width:32%;
 	color:white;
 	font-size:1.3em;
 	line-height:1.5em;
@@ -227,13 +234,35 @@ div.details ul li.price
 {
 	color:black;
 	text-decoration:none;
+	
 }
+
+table.unconfirmed
+{
+		margin:auto;
+}
+table.unconfirmed th, td
+{
+	text-align:left;
+	font-size:14px;
+	border:1px solid black;
+	padding: 5px 15px;
+
+}
+
+table.unconfirmed td.name
+{
+	width:200px;
+	overflow:hidden;
+}
+
 
 @media all and (max-width:800px)
 {
-	body
+	div.wrapper, div.individual
 	{
 		width:99%;
+		/*margin:auto;*/
 	}
 	div.bullet ul li
 	{
@@ -251,6 +280,7 @@ div.details ul li.price
 	.individual p
 	{
 		font-size: .8em;
+		padding: 0px 2em;
 	}
 	.individual ul li
 	{

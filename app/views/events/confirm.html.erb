@@ -1,0 +1,69 @@
+
+<%= link_to("<< Back to List", {:action  => 'index'}, :class  => 'back-link')%>
+
+<div class="event confirm">
+	<h2>Confirm Event</h2>
+	
+	<%= nested_form_for @event do |event_form| %>
+
+				<h3>Scraped Information</h3>
+				<p><strong>Scraped Name: </strong><%= @event.scraped_name %></p>
+				<p><strong>Scraped Age Info: </strong><%= @event.scraped_age %></p>
+				
+				
+				
+				<div class='leftcol'>
+					<div id="name">
+						<%= label :event_name,"Name", :class => "prime" %>
+						<%= event_form.text_field(:name)%>
+					</div>
+					<div id="age">
+						<%= label :event, "Age Restriction", :class => "prime" %>
+				
+						<%= event_form.radio_button(:age_restriction, "All Ages")%> <%= label :age_all, "All Ages"%>
+						<%= event_form.radio_button(:age_restriction, "19+")%> <%= label :age_19, "19+"%>
+						<%= event_form.radio_button(:age_restriction, "21+")%> <%= label :age_21, "21+"%>
+					</div>
+					<div id="description">
+						<%= label :event, "Description", :class => "prime" %>
+						<%= event_form.text_area(:description, :size=>"50x10")%>
+					</div>
+					<div id="time">
+						<%= label :event, "Date & Time", :class => "prime" %>
+						<%= event_form.datetime_select(:begins_at) %>
+					</div>
+					<div id="prices">
+						<%= label :event, "Price/Description", :class => "prime" %>
+						
+						<%= event_form.fields_for :prices do |price_form| %>
+
+							<%= price_form.text_field(:amount)%><%= price_form.text_field(:description)%><%= price_form.link_to_remove "Remove this Price"%>
+				
+						<% end %>
+						<%= event_form.link_to_add "Add a Price", :prices %>
+					</div>
+					<div id="venue">
+						<%= label :event, "Venue", :class => "prime" %>
+						<%= event_form.collection_select(:venue_id, Venue.all, :id, :display_name)%>
+					</div>
+				
+					<div id="confirmation">
+						<%= label :event, "Confirmed", :class => "prime" %>
+				
+						<%= event_form.radio_button(:confirmed, "0" ) %> <%= label :confirmed_no, "No"%>
+						<%= event_form.radio_button(:confirmed, "1" ) %> <%= label :confirmed_yes, "Yes"%>
+					</div>
+					<%= submit_tag("Update Event")%>
+				</div>
+		
+
+			
+
+		
+	<% end %>
+	
+	
+	<% unless @event.url.nil? %>
+	<iframe src=<%= @event.url %>  />
+	<% end %>
+</div>

@@ -1,5 +1,5 @@
 
-
+<div class="wrapper">
 <% if @venue %>
 	<h1><%= @venue.name %></h1>
 <%
@@ -15,6 +15,7 @@
 	<% altswitch = false %>
 	<% @events.each do |event| %>
 		<% 
+		 	#price = short_price(event.prices)
 			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>
@@ -31,7 +32,8 @@
 						<%= (mixed)? event.venue.display_name : event_day(event.begins_at)%>
 					</li>
 					<li class='price date bullet'>
-						<%= (mixed)? price_render(event.price) : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
+						<%= 
+						(mixed)? event.price : event.begins_at.strftime("%b #{event.begins_at.day.ordinalize}") %>
 					</li>
 					<li class='time bullet'>
 						<%= am_pm(event.begins_at) %>
@@ -45,8 +47,8 @@
 				<p class='description'><%= strip_tags event.description %></p>
 				<div class="details">
 					<ul>
-						<li class='event age'><%= event.age_restriction.scan(/21\+|19\+|All Ages/).first %></li>
-						<li class='price'><%= price_render(event.price) %></li>
+						<li class='event age'><%= event.age_restriction %></li>
+						<li class='price'><%= event.price %></li>
 					</ul>
 				</div>
 				
@@ -57,7 +59,7 @@
 	<% end %>
 
 </div>
-	
+</div>
 <!--ul class="navigation">
 	<li><%= link_to("This Week", week_events_path()) %></li>
 	<li><%= link_to("Venue List", venues_path()) %></li>

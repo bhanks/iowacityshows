@@ -10,12 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110802203358) do
-
-  create_table "admins", :force => true do |t|
-    t.string "username"
-    t.string "password"
-  end
+ActiveRecord::Schema.define(:version => 20120307155621) do
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -40,7 +35,21 @@ ActiveRecord::Schema.define(:version => 20110802203358) do
     t.datetime "updated_at"
     t.datetime "begins_at"
     t.text     "description"
-    t.text     "price"
+    t.string   "marker"
+    t.string   "url"
+    t.string   "price"
+  end
+
+  create_table "posts", :force => true do |t|
+    t.string   "url"
+    t.text     "block"
+    t.integer  "venue_id"
+    t.string   "state"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.string   "marker"
+    t.integer  "event_count"
+    t.datetime "remove_on"
   end
 
   create_table "venues", :force => true do |t|
@@ -51,6 +60,7 @@ ActiveRecord::Schema.define(:version => 20110802203358) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "display_name"
+    t.string   "parse_type"
   end
 
 end

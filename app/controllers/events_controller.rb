@@ -49,16 +49,16 @@ class EventsController < ApplicationController
 
   def edit
     @event = Event.find(params[:id])
-
   end
 
   def update
     @event = Event.find(params[:id])
+    p params.inspect
+    #@event.prices.destroy_all
     if @event.update_attributes(params[:event])
-      #@event.date = "#{params[:year]}-#{params[:month]}-#{params[:day]}".to_date
       @event.save
       flash[:notice] = "Event updated successfully."
-      redirect_to(:action => 'index')
+      redirect_to(:action => 'unconfirmed')
     else
       render('edit')
     end
@@ -77,6 +77,18 @@ class EventsController < ApplicationController
   def scrape
     Delayed::Job.enqueue(ScrapingJob.new())
     flash[:notice] = "Scrape initiated."
+  end
+  
+  def unconfirmed
+    if(@venue)
+      @events = @venue.events.unconfirmed
+    else
+      @events = Event.unconfirmed
+    end
+  end
+  
+  def confirm
+    @event = Event.find(params[:id])
   end
   
   
