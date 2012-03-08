@@ -12,7 +12,7 @@
 			<li><%= @event.age_restriction %></li>
 		</ul>
 
-	<p><%= strip_tags @event.description %></p>
+	<p><%= (@event.description == "")? "No more info available." : @event.description %></p>
 
 </div>
 

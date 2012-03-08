@@ -44,7 +44,7 @@
 
 
 				<h2 class='event title'><%= event.name %></h2>
-				<p class='description'><%= strip_tags event.description %></p>
+				<p class='description'><%= (event.description == "")? "No more info available." : event.description %></p>
 				<div class="details">
 					<ul>
 						<li class='event age'><%= event.age_restriction %></li>
