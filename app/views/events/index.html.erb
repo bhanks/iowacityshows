@@ -47,8 +47,8 @@
 				<p class='description'><%= (event.description == "")? "No more info available." : event.description %></p>
 				<div class="details">
 					<ul>
-						<li class='event age'><%= event.age_restriction %></li>
-						<li class='price'><%= Event.price_helper(event.price) %></li>
+						<li class='event age'><%= Event.age_helper(event.age_restriction) %></li>
+						<li class='price'><%= Event.price_helper(event.price)[0,20] %></li>
 					</ul>
 				</div>
 				

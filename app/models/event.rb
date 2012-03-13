@@ -146,6 +146,16 @@ class Event < ActiveRecord::Base
     end
     s
   end
+
+  def self.age_helper(age)
+    if age.scan(/(19|21)/).flatten.length != 0
+      s = age.scan(/(19|21)/).flatten[0]+"+"
+    else
+      s = age
+    end
+    s
+  end
+
   #Helper method for gigpress feeds
   def self.xml_wrap(item, text)
     #might be multiple cdata nodes in description node

@@ -9,7 +9,7 @@
 			<li><%= @event.begins_at.strftime("%b #{@event.begins_at.day.ordinalize}") %></li>
 
 			<li><%= Event.price_helper(@event.price) %></li>
-			<li><%= @event.age_restriction %></li>
+			<li><%= Event.age_helper(@event.age_restriction) %></li>
 		</ul>
 
 	<p><%= (@event.description == "")? "No more info available." : @event.description %></p>
