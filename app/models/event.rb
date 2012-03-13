@@ -60,29 +60,36 @@ class Event < ActiveRecord::Base
     end
   end
 
-
-  
-
-  
-=begin  
-  class Englert
-    def self.event_creator(vevent, venue_id, url)
-      scratch = Event.create!
-      scratch.scraped_name = vevent.css("h1").inner_html.gsub(/<\/?[^>]*>/, "")
-      price_text = vevent.css("font")[0].inner_html.to_s
-      #Event.price_helper(price_text, scratch.id)
-      scratch.description = (vevent.css("font")[1].nil?)? " " : vevent.css("font")[1].text.gsub(/<\/?[^>]*>/, "")
-      scratch.scraped_age = "All Ages"
-      scratch.venue_id = venue_id
-      scratch.confirmed = 0
-      scratch.marker = url
-      scratch.url = "http://englert.org/#{url}"
-      permanent = Event.find_by_marker(scratch.marker)
-      Event.comparison(scratch, permanent)
-
+  class Midwestix
+    def self.gather(venue)
+      #go to the page with all the goddamn links we have to follow
+      index = Nokogiri::HTML(open(venue.event_list_url))
+      p "opened event list"
+      @events = []
+      index.xpath("//a[text()='buy tickets']").map do |node| 
+        item = Nokogiri::HTML(open("#{node.attributes['href'].text}"))
+        scratch = Event.create!
+        scratch.venue_id = venue.id
+        scratch.name = item.xpath("//div[@class='EventInfoItemEventName ItemName']").text
+        scratch.description = ""
+        unless item.xpath("//div[@class='EventInfoItemSupportingText']").text == ""
+          scratch.description += item.xpath("//div[@class='EventInfoItemSupportingText']").text+" : "
+        end
+        scratch.description += item.xpath("//div[@class='EventInfoShortDescription']").text
+        scratch.begins_at = DateTime.parse(item.xpath("//div[@class='EventInfoItemDateTime']").text)
+        scratch.description += "\n"+item.xpath("//div[@class='EventInfoDateTimeSecondaryText']").text
+        scratch.price = ""
+        scratch.age_restriction = ""
+        scratch.url = "http://events.midwestix.com/#{node.attributes['href'].text}"
+        scratch.marker = node.attributes['href'].text
+        permanent = Event.find_by_marker(scratch.marker)
+        @events << Event.comparison(scratch, permanent)
+      end
+      @events.reject!{|event| event.nil? }
+      @events
     end
   end
-=end
+
   class TicketFly
     def self.gather(venue)
 
@@ -116,7 +123,7 @@ class Event < ActiveRecord::Base
     end
     sunday
   end
-  
+=begin  
   def self.price_helper(price_text, event_id)
     
     price = price_text.scan(/\$(\d+)/).flatten
@@ -130,7 +137,15 @@ class Event < ActiveRecord::Base
     end
     prices
   end
-
+=end
+  def self.price_helper(price)
+    if price.scan(/\$(\d+)/).flatten.length != 0
+      s = price.scan(/\$(\d+)/).flatten.map{|y| "$"+y}.join("-")
+    else
+      s = price
+    end
+    s
+  end
   #Helper method for gigpress feeds
   def self.xml_wrap(item, text)
     #might be multiple cdata nodes in description node
