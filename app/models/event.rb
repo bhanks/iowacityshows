@@ -29,6 +29,7 @@ class Event < ActiveRecord::Base
   }
   
   def self.collect_events
+    p 'Lets get scrapin!'
     venues = Venue.all
     venues.each {|venue|
       posts = Event.const_get(venue.parse_type.to_sym).gather(venue)
