@@ -15,7 +15,6 @@
 	<% altswitch = false %>
 	<% @events.each do |event| %>
 		<% 
-		 	#price = short_price(event.prices)
 			item = (altswitch)? "'item alt'" : "'item'" 
 			altswitch = !altswitch
 		%>

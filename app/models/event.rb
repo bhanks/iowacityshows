@@ -77,7 +77,11 @@ class Event < ActiveRecord::Base
           scratch.description += item.xpath("//div[@class='EventInfoItemSupportingText']").text+" : "
         end
         scratch.description += item.xpath("//div[@class='EventInfoShortDescription']").text
-        scratch.begins_at = DateTime.parse(item.xpath("//div[@class='EventInfoItemDateTime']").text)
+        begin
+          scratch.begins_at = DateTime.parse(item.xpath("//div[@class='EventInfoItemDateTime']").text)
+        rescue 
+          p "Date was not properly parsed."
+        end
         scratch.description += "\n"+item.xpath("//div[@class='EventInfoDateTimeSecondaryText']").text
         scratch.price = ""
         scratch.age_restriction = ""
@@ -177,6 +181,14 @@ class Event < ActiveRecord::Base
       p "No event exists at marker #{scratch.marker}"
       scratch.save!
     else
+      #update the already existing object
+      ['name', 'description','age_restriction','price','begins_at'].each do |a| 
+        if scratch[a] != permanent[a]
+          p "Updating #{scratch.name} attr #{a} with value #{scratch[a]}"
+          permanent[a] = scratch[a]
+        end 
+      end
+      permanent.save!
       scratch.destroy
     end
   end
