@@ -3,7 +3,9 @@ namespace :events do
 	desc "Scrape for events."
 	task :collect => :environment do
 		startTime = Time.now
-		FileUtils.mv("log/scrape.log", "log/scrape.last")
+		if(File.exists?("log/scrape.log"))
+			FileUtils.mv("log/scrape.log", "log/scrape.last")
+		end
 		Rails.logger = Logger.new("log/scrape.log")
 		
 		Rails.logger.info "Starting scrape at #{Time.now}"
