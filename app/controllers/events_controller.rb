@@ -1,4 +1,3 @@
-
 class EventsController < ApplicationController
   def index
     if(@venue)

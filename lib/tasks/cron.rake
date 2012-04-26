@@ -1,3 +1,3 @@
 task :cron => :environment do
-  Delayed::Job.enqueue(ScrapingJob.new())
+  #Delayed::Job.enqueue(ScrapingJob.new())
 end

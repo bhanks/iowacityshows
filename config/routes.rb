@@ -3,6 +3,8 @@ Onesheet::Application.routes.draw do
   
  
     
+  resources :statuses
+
   root :to => "events#week"
   
   resources :venues do

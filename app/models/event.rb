@@ -40,6 +40,7 @@ class Event < ActiveRecord::Base
   class GigPress
     def self.gather(venue)
       @events = []
+      fresh = 0
       Nokogiri::XML(open(venue.event_list_url)).xpath("//item").map do |item|
         scratch = Event.create!
 
@@ -54,9 +55,13 @@ class Event < ActiveRecord::Base
         scratch.url = item.xpath('link').text
         scratch.venue_id = venue.id
         permanent = Event.find_by_marker(scratch.marker)
-        @events << Event.comparison(scratch, permanent)
+        e = Event.comparison(scratch, permanent)
+        @events << e
+        fresh += 1 unless !e.fresh?
       end
       @events.reject!{|event| event.nil? }
+      #raise Exception
+      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
       @events
     end
   end
@@ -67,6 +72,7 @@ class Event < ActiveRecord::Base
       index = Nokogiri::HTML(open(venue.event_list_url))
       p "opened event list"
       @events = []
+      fresh = 0
       index.xpath("//a[text()='buy tickets']").map do |node| 
         item = Nokogiri::HTML(open("#{node.attributes['href'].text}"))
         scratch = Event.create!
@@ -88,9 +94,12 @@ class Event < ActiveRecord::Base
         scratch.url = "http://events.midwestix.com/#{node.attributes['href'].text}"
         scratch.marker = node.attributes['href'].text
         permanent = Event.find_by_marker(scratch.marker)
-        @events << Event.comparison(scratch, permanent)
+        e = Event.comparison(scratch, permanent)
+        @events << e
+        fresh += 1 unless !e.fresh?
       end
       @events.reject!{|event| event.nil? }
+      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
       @events
     end
   end
@@ -99,6 +108,7 @@ class Event < ActiveRecord::Base
     def self.gather(venue)
 
       @events = []
+      fresh = 0
       Nokogiri::XML(open(venue.event_list_url+"&maxResults=200")).xpath("map/entry[@key='events']/map").map do |node|
         scratch = Event.create!
         scratch.venue_id = venue.id
@@ -110,9 +120,12 @@ class Event < ActiveRecord::Base
         scratch.price = node.xpath("entry[@key='ticketPrice']").text
         scratch.url = "http://www.ticketfly.com/event/#{scratch.marker}"
         permanent = Event.find_by_marker(scratch.marker)
-        @events << Event.comparison(scratch, permanent)
+        e = Event.comparison(scratch, permanent)
+        @events << e
+        fresh += 1 unless !e.fresh?
       end
       @events.reject!{|event| event.nil? }
+      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
       @events
 
     end
@@ -180,6 +193,7 @@ class Event < ActiveRecord::Base
       #If no event with this marker exists, go ahead and save everything.
       p "No event exists at marker #{scratch.marker}"
       scratch.save!
+      scratch
     else
       #update the already existing object
       ['name', 'description','age_restriction','price','begins_at'].each do |a| 
@@ -188,8 +202,10 @@ class Event < ActiveRecord::Base
           permanent[a] = scratch[a]
         end 
       end
-      permanent.save!
+      permanent.fresh = false
       scratch.destroy
+      permanent.save!
+      permanent
     end
   end
   

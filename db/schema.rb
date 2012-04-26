@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20120307155621) do
+ActiveRecord::Schema.define(:version => 20120426152421) do
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(:version => 20120307155621) do
     t.string   "marker"
     t.string   "url"
     t.string   "price"
+    t.string   "fresh",           :default => "true"
   end
 
   create_table "posts", :force => true do |t|
