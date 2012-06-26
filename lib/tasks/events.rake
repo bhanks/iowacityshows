@@ -3,23 +3,19 @@ namespace :events do
 	desc "Scrape for events."
 	task :collect => :environment do
 		startTime = Time.now
-		if(File.exists?("log/scrape.log"))
-			FileUtils.mv("log/scrape.log", "log/scrape.last")
-		end
-		Rails.logger = Logger.new("log/scrape.log")
-		
-		Rails.logger.info "Starting scrape at #{Time.now}"
+
 		begin
 			Event.collect_events
 		rescue Exception => msg
 			failure = true
 			puts "Scrape failed: #{msg}"
-			Rails.logger.info "Scrape failed: #{msg}"
 		end
 		endTIme = Time.now
 		puts "Total time: #{endTIme-startTime} seconds." 
 		unless failure
-			Rails.logger.info "Scrape completed successfully in #{endTIme-startTime} seconds."
+			Venue.all.each{|v|
+				puts "#{v.name}: #{v.events.fresh.count} fresh, #{v.events.changed.count} updated, #{v.events.all_upcoming.count} total events upcoming."
+			}
 		end
 	end
 
