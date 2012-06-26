@@ -2,6 +2,9 @@ require 'open-uri'
 class Event < ActiveRecord::Base
   ActiveRecord::Base.inheritance_column = "activerecordtype" 
   
+  after_initialize :default_values
+
+  
   belongs_to :venue
   
   scope :by_venue, lambda{ |venue_id|
@@ -19,6 +22,10 @@ class Event < ActiveRecord::Base
   scope :past, lambda{
     where("events.begins_at < ?", Date.today.to_s(:db))
   }
+
+  scope :all_upcoming, lambda{
+    where("events.begins_at >= ?", Date.today.to_s(:db))
+  }
   
   scope :unconfirmed, lambda{
     where("events.confirmed = ?", 0)
@@ -27,12 +34,43 @@ class Event < ActiveRecord::Base
   scope :confirmed, lambda{
     where("events.confirmed = ?", 1)
   }
+
+  scope :stale, lambda{
+    where("events.state = ?", "stale")
+  }
+
+  scope :fresh, lambda{ 
+    where("events.state = ?", "new")
+  }
+
+  scope :changed, lambda{ 
+    where("events.state = ?", "updated")
+  }
   
+  state_machine :state, :initial => :new do
+    
+    event :examine do
+      transition [:new, :updated] => :stale
+    end
+
+    event :change do
+      transition [:new, :stale, :updated] => :updated
+    end
+
+
+    state :new do
+      def fresh?
+        true
+      end
+    end
+  end
+
   def self.collect_events
     p 'Lets get scrapin!'
     venues = Venue.all
+    results =[]
     venues.each {|venue|
-      posts = Event.const_get(venue.parse_type.to_sym).gather(venue)
+      Event.const_get(venue.parse_type.to_sym).gather(venue)
     }
 
   end
@@ -40,7 +78,7 @@ class Event < ActiveRecord::Base
   class GigPress
     def self.gather(venue)
       @events = []
-      fresh = 0
+
       Nokogiri::XML(open(venue.event_list_url)).xpath("//item").map do |item|
         scratch = Event.create!
 
@@ -57,11 +95,8 @@ class Event < ActiveRecord::Base
         permanent = Event.find_by_marker(scratch.marker)
         e = Event.comparison(scratch, permanent)
         @events << e
-        fresh += 1 unless !e.fresh?
       end
       @events.reject!{|event| event.nil? }
-      #raise Exception
-      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
       @events
     end
   end
@@ -70,9 +105,9 @@ class Event < ActiveRecord::Base
     def self.gather(venue)
       #go to the page with all the goddamn links we have to follow
       index = Nokogiri::HTML(open(venue.event_list_url))
-      p "opened event list"
+
       @events = []
-      fresh = 0
+
       index.xpath("//a[text()='buy tickets']").map do |node| 
         item = Nokogiri::HTML(open("#{node.attributes['href'].text}"))
         scratch = Event.create!
@@ -96,10 +131,10 @@ class Event < ActiveRecord::Base
         permanent = Event.find_by_marker(scratch.marker)
         e = Event.comparison(scratch, permanent)
         @events << e
-        fresh += 1 unless !e.fresh?
+
       end
       @events.reject!{|event| event.nil? }
-      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
+      
       @events
     end
   end
@@ -122,10 +157,10 @@ class Event < ActiveRecord::Base
         permanent = Event.find_by_marker(scratch.marker)
         e = Event.comparison(scratch, permanent)
         @events << e
-        fresh += 1 unless !e.fresh?
+        
       end
       @events.reject!{|event| event.nil? }
-      Rails.logger.info "Looked at #{@events.count} events for #{venue.name}. Fresh events: #{fresh}"
+
       @events
 
     end
@@ -191,23 +226,27 @@ class Event < ActiveRecord::Base
   def self.comparison(scratch, permanent)
     if(permanent.nil?)
       #If no event with this marker exists, go ahead and save everything.
-      p "No event exists at marker #{scratch.marker}"
       scratch.save!
       scratch
     else
       #update the already existing object
+      permanent.examine
       ['name', 'description','age_restriction','price','begins_at'].each do |a| 
         if scratch[a] != permanent[a]
-          p "Updating #{scratch.name} attr #{a} with value #{scratch[a]}"
           permanent[a] = scratch[a]
+          permanent.change
         end 
       end
-      permanent.fresh = false
+
       scratch.destroy
       permanent.save!
       permanent
     end
   end
+  private
+    def default_values
+      self.state ||= "new"
+    end
   
       
 end
