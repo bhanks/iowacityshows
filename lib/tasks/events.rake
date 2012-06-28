@@ -12,6 +12,8 @@ namespace :events do
 		end
 		endTIme = Time.now
 		puts "Total time: #{endTIme-startTime} seconds." 
+		tme = endTIme-startTime
+		StatusMailer.status_report(tme).deliver
 		unless failure
 			Venue.all.each{|v|
 				puts "#{v.name}: #{v.events.fresh.count} fresh, #{v.events.changed.count} updated, #{v.events.all_upcoming.count} total events upcoming."

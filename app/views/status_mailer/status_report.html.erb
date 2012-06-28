@@ -1,0 +1,18 @@
+<h1>Status Report: time</h1>
+<p>Scrape successfully completed in <%= @tme %></p>
+<table>
+	<tr>
+		<th>Venue</th>
+		<th>Fresh</th>
+		<th>Changed</th>
+		<th>All Upcoming</th>
+	</tr>
+	<% @report.each do |r| %>
+	<tr>
+		<td><%= r.v_name %></td>
+		<td><%= r.fresh %></td>
+		<td><%= r.changed %></td>
+		<td><%= r.upcoming %></td>
+	</tr>
+	<% end %>
+</table>
